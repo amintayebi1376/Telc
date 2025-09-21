@@ -3,8 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>چت باکس هوشمند</title>
+    <title>C TelC - Assistant AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
+            --secondary-color: #f8fafc;
+            --accent-color: #06b6d4;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            
+            --chat-bg: #ffffff;
+            --user-message: #2563eb;
+            --bot-message: #f1f5f9;
+            --sidebar-bg: #fafbfc;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --secondary-color: #0f172a;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --chat-bg: #1e293b;
+            --bot-message: #334155;
+            --sidebar-bg: #0f172a;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,449 +48,1047 @@
         }
 
         body {
-            font-family: 'Tahoma', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Vazirmatn', 'Inter', sans-serif;
+            background: var(--secondary-color);
+            color: var(--text-color);
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .chat-container {
-            width: 90%;
-            max-width: 800px;
-            height: 80vh;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: var(--secondary-color);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sidebar.collapsed {
+            width: 0;
             overflow: hidden;
         }
 
-        .chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--primary-gradient);
             color: white;
-            padding: 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            gap: 1rem;
         }
 
-        .chat-title {
-            font-size: 20px;
-            font-weight: bold;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
         }
 
         .new-chat-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
+            margin: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--primary-gradient);
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
         }
 
         .new-chat-btn:hover {
-            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
-        .chat-sidebar {
-            background: #f8f9fa;
-            width: 250px;
-            border-left: 1px solid #e0e0e0;
-            padding: 15px;
+        .chat-history {
+            flex: 1;
+            padding: 0.5rem;
             overflow-y: auto;
         }
 
-        .chat-list {
-            list-style: none;
-        }
-
         .chat-item {
-            padding: 12px;
-            margin: 5px 0;
-            background: white;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.25rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .chat-item:hover {
-            background: #e3f2fd;
+            background: var(--border-color);
         }
 
         .chat-item.active {
-            border-color: #667eea;
-            background: #e8eaf6;
+            background: var(--primary-color);
+            color: white;
         }
 
-        .chat-main {
+        /* Main Chat Area */
+        .main-content {
             flex: 1;
             display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--chat-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--border-color);
+        }
+
+        .chat-info h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.error { background: var(--error-color); }
+        .status-dot.warning { background: var(--warning-color); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--border-color);
         }
 
         .chat-messages {
             flex: 1;
-            padding: 20px;
+            padding: 1rem;
             overflow-y: auto;
-            background: #fafafa;
+            scroll-behavior: smooth;
         }
 
         .message {
-            margin: 15px 0;
-            padding: 12px 18px;
-            border-radius: 18px;
-            max-width: 80%;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        .message.user {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-right: auto;
-            text-align: right;
-        }
-
-        .message.bot {
-            background: white;
-            color: #333;
-            margin-left: auto;
-            text-align: right;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .message.loading {
-            background: white;
-            color: #666;
-            margin-left: auto;
-            text-align: center;
-        }
-
-        .chat-input-container {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e0e0e0;
+            margin-bottom: 1.5rem;
             display: flex;
-            gap: 10px;
+            gap: 0.75rem;
+            animation: fadeInUp 0.4s ease;
         }
 
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        .chat-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
-            min-width: 80px;
-        }
-
-        .send-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading-dots {
-            display: inline-block;
-        }
-
-        .loading-dots::after {
-            content: '⠋';
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes fadeIn {
+        @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes spin {
-            0% { content: '⠋'; }
-            10% { content: '⠙'; }
-            20% { content: '⠹'; }
-            30% { content: '⠸'; }
-            40% { content: '⠼'; }
-            50% { content: '⠴'; }
-            60% { content: '⠦'; }
-            70% { content: '⠧'; }
-            80% { content: '⠇'; }
-            90% { content: '⠏'; }
+        .message.user {
+            flex-direction: row-reverse;
         }
 
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .user .message-avatar {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .bot .message-avatar {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .user .message-content {
+            background: var(--user-message);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot .message-content {
+            background: var(--bot-message);
+            color: var(--text-color);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            opacity: 0.7;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bot-message);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            max-width: fit-content;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .chat-input-container {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--chat-bg);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+            background: var(--secondary-color);
+            border-radius: 24px;
+            padding: 0.75rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text-color);
+            resize: none;
+            min-height: 20px;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .welcome-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .quick-action {
+            padding: 1rem;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: right;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quick-action-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-action-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .chat-main {
-                flex-direction: column;
+            .sidebar {
+                position: absolute;
+                top: 0;
+                right: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(100%);
             }
-            .chat-sidebar {
-                width: 100%;
-                max-height: 150px;
-                order: 2;
+
+            .sidebar.open {
+                transform: translateX(0);
             }
-            .chat-messages {
-                order: 1;
+
+            .sidebar.collapsed {
+                width: 300px;
+                transform: translateX(100%);
             }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="chat-title">چت باکس هوشمند</div>
-            <button class="new-chat-btn" onclick="createNewChat()">چت جدید</button>
-        </div>
-        
-        <div class="chat-main">
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot">
-                    سلام! من دستیار هوشمند شما هستم. چطور می‌تونم کمکتون کنم؟
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo">C</div>
+                    <div class="logo-text">TelC Assistant</div>
                 </div>
             </div>
             
-            <div class="chat-sidebar">
-                <h3 style="margin-bottom: 15px; color: #666;">چت‌های قبلی</h3>
-                <ul class="chat-list" id="chatList"></ul>
+            <button class="new-chat-btn" onclick="createNewChat()">
+                <i class="fas fa-plus"></i>
+                گفتگوی جدید
+            </button>
+            
+            <div class="chat-history" id="chatHistory">
+                <!-- Chat history will be populated here -->
             </div>
         </div>
-        
-        <div class="chat-input-container">
-            <input type="text" class="chat-input" id="messageInput" placeholder="پیام خود را اینجا بنویسید..." onkeypress="handleKeyPress(event)">
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()">ارسال</button>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="chat-info">
+                        <h2 id="chatTitle">C TelC Assistant</h2>
+                        <div class="connection-status">
+                            <span class="status-dot" id="statusDot"></span>
+                            <span id="statusText">آنلاین</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-logo">C</div>
+                    <h1 class="welcome-title">به C TelC Assistant خوش آمدید</h1>
+                    <p class="welcome-subtitle">من اینجا هستم تا به شما کمک کنم. سوال خود را بپرسید!</p>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="sendQuickMessage('سلام! می‌توانید درباره خودتان بگویید؟')">
+                            <div class="quick-action-icon"><i class="fas fa-robot"></i></div>
+                            <div class="quick-action-title">آشنایی</div>
+                            <div class="quick-action-desc">درباره قابلیت‌های من بیشتر بدانید</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('می‌توانید به من در تحلیل داده کمک کنید؟')">
+                            <div class="quick-action-icon"><i class="fas fa-chart-bar"></i></div>
+                            <div class="quick-action-title">تحلیل داده</div>
+                            <div class="quick-action-desc">کمک در تحلیل و بررسی داده‌ها</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('لطفاً یک برنامه کاری برای من ایجاد کنید')">
+                            <div class="quick-action-icon"><i class="fas fa-calendar"></i></div>
+                            <div class="quick-action-title">برنامه‌ریزی</div>
+                            <div class="quick-action-desc">کمک در سازماندهی وقت</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('نیاز به کمک در نوشتن متن دارم')">
+                            <div class="quick-action-icon"><i class="fas fa-pen"></i></div>
+                            <div class="quick-action-title">نوشتن</div>
+                            <div class="quick-action-desc">کمک در تولید و ویرایش متن</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="messageInput" 
+                        placeholder="پیام خود را اینجا بنویسید..."
+                        onkeydown="handleKeyDown(event)"
+                        rows="1"
+                    ></textarea>
+                    <button class="send-button" onclick="sendMessage()" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // تنظیمات n8n - URL صحیح webhook
-        const N8N_WEBHOOK_URL = 'https://ariantesttelc.app.n8n.cloud/webhook/chat';
-        
-        // متغیرهای سراسری
+        // Configuration
+        const CONFIG = {
+            webhookUrl: 'https://ariantesttelc.app.n8n.cloud/webhook-test/chat',
+            maxRetries: 3,
+            retryDelay: 2000,
+            timeout: 30000,
+            autoSaveInterval: 30000
+        };
+
+        // Global variables
         let currentChatId = null;
         let chats = {};
-        let isWaitingForResponse = false;
+        let isConnected = false;
+        let isDarkMode = false;
+        let isSidebarOpen = true;
 
-        // بارگذاری چت‌های ذخیره شده
-        function loadChats() {
-            const savedChats = localStorage.getItem('chatHistory');
-            if (savedChats) {
-                chats = JSON.parse(savedChats);
-                updateChatList();
-                
-                // اگر چت فعلی وجود ندارد، اولین چت را فعال کن
-                if (!currentChatId && Object.keys(chats).length > 0) {
-                    currentChatId = Object.keys(chats)[0];
-                    loadChat(currentChatId);
-                }
-            }
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChats();
+            checkConnection();
+            setupAutoSave();
+            setupTextareaAutoResize();
             
-            // اگر هیچ چتی وجود ندارد، چت جدید بساز
-            if (Object.keys(chats).length === 0) {
-                createNewChat();
+            // Check for saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                toggleTheme();
             }
-        }
+        });
 
-        // ذخیره چت‌ها
-        function saveChats() {
-            localStorage.setItem('chatHistory', JSON.stringify(chats));
-        }
-
-        // ایجاد چت جدید
+        // Chat management functions
         function createNewChat() {
-            const chatId = 'chat_' + Date.now();
-            const chatTitle = 'چت جدید ' + new Date().toLocaleDateString('fa-IR');
+            const chatId = Date.now().toString();
+            const chatTitle = `گفتگو ${Object.keys(chats).length + 1}`;
             
             chats[chatId] = {
+                id: chatId,
                 title: chatTitle,
-                messages: [
-                    {
-                        type: 'bot',
-                        text: 'سلام! من دستیار هوشمند شما هستم. چطور می‌تونم کمکتون کنم؟',
-                        timestamp: new Date()
-                    }
-                ]
+                messages: [],
+                createdAt: new Date().toISOString()
             };
             
             currentChatId = chatId;
-            updateChatList();
-            loadChat(chatId);
             saveChats();
+            renderChatHistory();
+            clearMessages();
+            showWelcomeScreen();
+            updateChatTitle(chatTitle);
         }
 
-        // به‌روزرسانی لیست چت‌ها
-        function updateChatList() {
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-            
-            Object.keys(chats).reverse().forEach(chatId => {
-                const li = document.createElement('li');
-                li.className = 'chat-item';
-                if (chatId === currentChatId) {
-                    li.classList.add('active');
-                }
-                li.textContent = chats[chatId].title;
-                li.onclick = () => loadChat(chatId);
-                chatList.appendChild(li);
-            });
-        }
-
-        // بارگذاری چت
         function loadChat(chatId) {
-            currentChatId = chatId;
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '';
+            if (!chats[chatId]) return;
             
-            chats[chatId].messages.forEach(message => {
-                addMessageToUI(message.text, message.type);
+            currentChatId = chatId;
+            clearMessages();
+            hideWelcomeScreen();
+            
+            const chat = chats[chatId];
+            updateChatTitle(chat.title);
+            
+            chat.messages.forEach(message => {
+                displayMessage(message.content, message.type, false);
             });
             
-            updateChatList();
+            renderChatHistory();
             scrollToBottom();
         }
 
-        // اضافه کردن پیام به UI
-        function addMessageToUI(message, type) {
-            const chatMessages = document.getElementById('chatMessages');
+        function deleteChat(chatId) {
+            if (confirm('آیا مطمئن هستید که می‌خواهید این گفتگو را حذف کنید؟')) {
+                delete chats[chatId];
+                
+                if (currentChatId === chatId) {
+                    currentChatId = null;
+                    clearMessages();
+                    showWelcomeScreen();
+                }
+                
+                saveChats();
+                renderChatHistory();
+            }
+        }
+
+        // Message functions
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!currentChatId) {
+                createNewChat();
+            }
+            
+            hideWelcomeScreen();
+            displayMessage(message, 'user');
+            input.value = '';
+            resetTextareaHeight();
+            
+            // Add message to chat history
+            chats[currentChatId].messages.push({
+                content: message,
+                type: 'user',
+                timestamp: new Date().toISOString()
+            });
+            
+            // Update chat title if it's the first message
+            if (chats[currentChatId].messages.length === 1) {
+                const title = message.length > 30 ? message.substring(0, 30) + '...' : message;
+                chats[currentChatId].title = title;
+                updateChatTitle(title);
+                renderChatHistory();
+            }
+            
+            saveChats();
+            sendToAI(message);
+        }
+
+        function sendQuickMessage(message) {
+            if (!currentChatId) {
+                createNewChat();
+            }
+            
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        async function sendToAI(message) {
+            showTypingIndicator();
+            updateConnectionStatus('connecting', 'در حال ارسال...');
+            
+            const payload = {
+                message: message,
+                chatId: currentChatId,
+                timestamp: new Date().toISOString()
+            };
+            
+            let retries = 0;
+            
+            while (retries < CONFIG.maxRetries) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeout);
+                    
+                    const response = await fetch(CONFIG.webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    const botResponse = data.response || data.message || 'متأسفم، پاسخی دریافت نکردم.';
+                    
+                    hideTypingIndicator();
+                    displayMessage(botResponse, 'bot');
+                    
+                    // Add bot response to chat history
+                    chats[currentChatId].messages.push({
+                        content: botResponse,
+                        type: 'bot',
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    saveChats();
+                    updateConnectionStatus('connected', 'آنلاین');
+                    break;
+                    
+                } catch (error) {
+                    console.error(`Attempt ${retries + 1} failed:`, error);
+                    retries++;
+                    
+                    if (retries >= CONFIG.maxRetries) {
+                        hideTypingIndicator();
+                        displayMessage(
+                            'متأسفم، در حال حاضر قادر به پاسخ‌دهی نیستم. لطفاً بعداً دوباره تلاش کنید.',
+                            'bot'
+                        );
+                        updateConnectionStatus('error', 'خطا در اتصال');
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
+                    }
+                }
+            }
+        }
+
+        function displayMessage(content, type, saveToHistory = true) {
+            const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type}`;
-            messageDiv.textContent = message;
-            chatMessages.appendChild(messageDiv);
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'user' ? 'شما' : 'C';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = new Date().toLocaleTimeString('fa-IR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            messageDiv.appendChild(avatar);
+            const contentWrapper = document.createElement('div');
+            contentWrapper.appendChild(messageContent);
+            contentWrapper.appendChild(messageTime);
+            messageDiv.appendChild(contentWrapper);
+            
+            messagesContainer.appendChild(messageDiv);
             scrollToBottom();
         }
 
-        // اسکرول به پایین
-        function scrollToBottom() {
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        // UI Helper functions
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'C';
+            
+            const typingContent = document.createElement('div');
+            typingContent.className = 'typing-indicator';
+            typingContent.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                در حال تایپ...
+            `;
+            
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(typingContent);
+            messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
         }
 
-        // مدیریت فشردن کلید Enter
-        function handleKeyPress(event) {
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function clearMessages() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '';
+        }
+
+        function showWelcomeScreen() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const welcomeScreen = `
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-logo">C</div>
+                    <h1 class="welcome-title">به C TelC Assistant خوش آمدید</h1>
+                    <p class="welcome-subtitle">من اینجا هستم تا به شما کمک کنم. سوال خود را بپرسید!</p>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="sendQuickMessage('سلام! می‌توانید درباره خودتان بگویید؟')">
+                            <div class="quick-action-icon"><i class="fas fa-robot"></i></div>
+                            <div class="quick-action-title">آشنایی</div>
+                            <div class="quick-action-desc">درباره قابلیت‌های من بیشتر بدانید</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('می‌توانید به من در تحلیل داده کمک کنید؟')">
+                            <div class="quick-action-icon"><i class="fas fa-chart-bar"></i></div>
+                            <div class="quick-action-title">تحلیل داده</div>
+                            <div class="quick-action-desc">کمک در تحلیل و بررسی داده‌ها</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('لطفاً یک برنامه کاری برای من ایجاد کنید')">
+                            <div class="quick-action-icon"><i class="fas fa-calendar"></i></div>
+                            <div class="quick-action-title">برنامه‌ریزی</div>
+                            <div class="quick-action-desc">کمک در سازماندهی وقت</div>
+                        </div>
+                        <div class="quick-action" onclick="sendQuickMessage('نیاز به کمک در نوشتن متن دارم')">
+                            <div class="quick-action-icon"><i class="fas fa-pen"></i></div>
+                            <div class="quick-action-title">نوشتن</div>
+                            <div class="quick-action-desc">کمک در تولید و ویرایش متن</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.innerHTML = welcomeScreen;
+        }
+
+        function hideWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function updateChatTitle(title) {
+            document.getElementById('chatTitle').textContent = title;
+        }
+
+        function updateConnectionStatus(status, text) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+            
+            isConnected = status === 'connected';
+        }
+
+        // Storage functions
+        function saveChats() {
+            localStorage.setItem('telc_chats', JSON.stringify(chats));
+        }
+
+        function loadChats() {
+            const savedChats = localStorage.getItem('telc_chats');
+            if (savedChats) {
+                chats = JSON.parse(savedChats);
+            }
+            renderChatHistory();
+        }
+
+        function renderChatHistory() {
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.innerHTML = '';
+            
+            Object.values(chats)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .forEach(chat => {
+                    const chatItem = document.createElement('div');
+                    chatItem.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                    chatItem.innerHTML = `
+                        <i class="fas fa-comment"></i>
+                        <span>${chat.title}</span>
+                    `;
+                    chatItem.onclick = () => loadChat(chat.id);
+                    chatHistory.appendChild(chatItem);
+                });
+        }
+
+        // Connection check
+        async function checkConnection() {
+            try {
+                const response = await fetch(CONFIG.webhookUrl, {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                updateConnectionStatus('connected', 'آنلاین');
+            } catch (error) {
+                updateConnectionStatus('error', 'آفلاین');
+            }
+        }
+
+        // Auto-save setup
+        function setupAutoSave() {
+            setInterval(saveChats, CONFIG.autoSaveInterval);
+        }
+
+        // Textarea auto-resize
+        function setupTextareaAutoResize() {
+            const textarea = document.getElementById('messageInput');
+            
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        function resetTextareaHeight() {
+            const textarea = document.getElementById('messageInput');
+            textarea.style.height = 'auto';
+        }
+
+        // Event handlers
+        function handleKeyDown(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
                 sendMessage();
             }
         }
 
-        // ارسال پیام
-        async function sendMessage() {
-            if (isWaitingForResponse) return;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
             
-            const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value.trim();
-            
-            if (message === '') return;
-            
-            // اضافه کردن پیام کاربر
-            addMessageToUI(message, 'user');
-            chats[currentChatId].messages.push({
-                type: 'user',
-                text: message,
-                timestamp: new Date()
-            });
-            
-            // به‌روزرسانی عنوان چت اگر پیام اول باشد
-            if (chats[currentChatId].messages.length === 2) {
-                chats[currentChatId].title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
-                updateChatList();
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('open');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                isSidebarOpen = !sidebar.classList.contains('collapsed');
             }
-            
-            messageInput.value = '';
-            isWaitingForResponse = true;
-            
-            // نمایش loading
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message loading';
-            loadingDiv.innerHTML = '<span class="loading-dots"></span> در حال پردازش...';
-            document.getElementById('chatMessages').appendChild(loadingDiv);
-            scrollToBottom();
-            
-            // غیرفعال کردن دکمه ارسال
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.disabled = true;
-            sendBtn.textContent = 'صبر کنید...';
-            
-            try {
-                // ارسال به n8n
-                const response = await fetch(N8N_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        chatId: currentChatId,
-                        timestamp: new Date().toISOString(),
-                        userId: 'user_' + Date.now() // شناسه کاربر
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // حذف loading
-                loadingDiv.remove();
-                
-                // نمایش پاسخ ربات
-                const botResponse = data.response || data.message || 'متاسفانه نتوانستم پاسخ مناسبی تولید کنم.';
-                addMessageToUI(botResponse, 'bot');
-                chats[currentChatId].messages.push({
-                    type: 'bot',
-                    text: botResponse,
-                    timestamp: new Date()
-                });
-                
-            } catch (error) {
-                console.error('Error:', error);
-                loadingDiv.remove();
-                addMessageToUI('خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.', 'bot');
-                chats[currentChatId].messages.push({
-                    type: 'bot',
-                    text: 'خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.',
-                    timestamp: new Date()
-                });
-            }
-            
-            // فعال کردن مجدد دکمه ارسال
-            isWaitingForResponse = false;
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'ارسال';
-            
-            // ذخیره چت‌ها
-            saveChats();
         }
 
-        // بارگذاری اولیه
-        document.addEventListener('DOMContentLoaded', function() {
-            loadChats();
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            
+            const themeIcon = document.getElementById('themeIcon');
+            themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        // Responsive handling
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
+                if (!isSidebarOpen) {
+                    sidebar.classList.add('collapsed');
+                }
+            } else {
+                sidebar.classList.remove('collapsed');
+            }
         });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(event.target) &&
+                !toggleButton.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Initialize with welcome screen
+        showWelcomeScreen();
     </script>
 </body>
 </html>
