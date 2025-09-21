@@ -2,35 +2,459 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>صفحه تست HTML</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چت باکس هوشمند</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Tahoma, Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #ffc107;
-            text-align: center;
-            margin-top: 100px;
+            font-family: 'Tahoma', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        h1 {
-            font-size: 2.5rem;
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        button {
-            background-color: #ffc107;
-            color: #1e1e1e;
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .new-chat-btn {
+            background: rgba(255,255,255,0.2);
             border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            border-radius: 5px;
+            transition: all 0.3s;
         }
-        button:hover {
-            background-color: #ff9800;
+
+        .new-chat-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-sidebar {
+            background: #f8f9fa;
+            width: 250px;
+            border-left: 1px solid #e0e0e0;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .chat-list {
+            list-style: none;
+        }
+
+        .chat-item {
+            padding: 12px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .chat-item:hover {
+            background: #e3f2fd;
+        }
+
+        .chat-item.active {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+
+        .chat-main {
+            flex: 1;
+            display: flex;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .message {
+            margin: 15px 0;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-right: auto;
+            text-align: right;
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            margin-left: auto;
+            text-align: right;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message.loading {
+            background: white;
+            color: #666;
+            margin-left: auto;
+            text-align: center;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            min-width: 80px;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '⠋';
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { content: '⠋'; }
+            10% { content: '⠙'; }
+            20% { content: '⠹'; }
+            30% { content: '⠸'; }
+            40% { content: '⠼'; }
+            50% { content: '⠴'; }
+            60% { content: '⠦'; }
+            70% { content: '⠧'; }
+            80% { content: '⠇'; }
+            90% { content: '⠏'; }
+        }
+
+        @media (max-width: 768px) {
+            .chat-main {
+                flex-direction: column;
+            }
+            .chat-sidebar {
+                width: 100%;
+                max-height: 150px;
+                order: 2;
+            }
+            .chat-messages {
+                order: 1;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>سلام! این یک صفحه تست HTML است 🌟</h1>
-    <p>اگر این متن را می‌بینی یعنی HTML کار می‌کند.</p>
-    <button onclick="alert('دکمه کلیک شد! 🎉')">امتحان کن</button>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-title">چت باکس هوشمند</div>
+            <button class="new-chat-btn" onclick="createNewChat()">چت جدید</button>
+        </div>
+        
+        <div class="chat-main">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    سلام! من دستیار هوشمند شما هستم. چطور می‌تونم کمکتون کنم؟
+                </div>
+            </div>
+            
+            <div class="chat-sidebar">
+                <h3 style="margin-bottom: 15px; color: #666;">چت‌های قبلی</h3>
+                <ul class="chat-list" id="chatList"></ul>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="messageInput" placeholder="پیام خود را اینجا بنویسید..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">ارسال</button>
+        </div>
+    </div>
+
+    <script>
+        // تنظیمات n8n
+        const N8N_WEBHOOK_URL = 'https://ariantesttelc.app.n8n.cloud/webhook/chat'; // URL webhook شما
+        
+        // متغیرهای سراسری
+        let currentChatId = null;
+        let chats = {};
+        let isWaitingForResponse = false;
+
+        // بارگذاری چت‌های ذخیره شده
+        function loadChats() {
+            const savedChats = localStorage.getItem('chatHistory');
+            if (savedChats) {
+                chats = JSON.parse(savedChats);
+                updateChatList();
+                
+                // اگر چت فعلی وجود ندارد، اولین چت را فعال کن
+                if (!currentChatId && Object.keys(chats).length > 0) {
+                    currentChatId = Object.keys(chats)[0];
+                    loadChat(currentChatId);
+                }
+            }
+            
+            // اگر هیچ چتی وجود ندارد، چت جدید بساز
+            if (Object.keys(chats).length === 0) {
+                createNewChat();
+            }
+        }
+
+        // ذخیره چت‌ها
+        function saveChats() {
+            localStorage.setItem('chatHistory', JSON.stringify(chats));
+        }
+
+        // ایجاد چت جدید
+        function createNewChat() {
+            const chatId = 'chat_' + Date.now();
+            const chatTitle = 'چت جدید ' + new Date().toLocaleDateString('fa-IR');
+            
+            chats[chatId] = {
+                title: chatTitle,
+                messages: [
+                    {
+                        type: 'bot',
+                        text: 'سلام! من دستیار هوشمند شما هستم. چطور می‌تونم کمکتون کنم؟',
+                        timestamp: new Date()
+                    }
+                ]
+            };
+            
+            currentChatId = chatId;
+            updateChatList();
+            loadChat(chatId);
+            saveChats();
+        }
+
+        // به‌روزرسانی لیست چت‌ها
+        function updateChatList() {
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+            
+            Object.keys(chats).reverse().forEach(chatId => {
+                const li = document.createElement('li');
+                li.className = 'chat-item';
+                if (chatId === currentChatId) {
+                    li.classList.add('active');
+                }
+                li.textContent = chats[chatId].title;
+                li.onclick = () => loadChat(chatId);
+                chatList.appendChild(li);
+            });
+        }
+
+        // بارگذاری چت
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            chats[chatId].messages.forEach(message => {
+                addMessageToUI(message.text, message.type);
+            });
+            
+            updateChatList();
+            scrollToBottom();
+        }
+
+        // اضافه کردن پیام به UI
+        function addMessageToUI(message, type) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // اسکرول به پایین
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // مدیریت فشردن کلید Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // ارسال پیام
+        async function sendMessage() {
+            if (isWaitingForResponse) return;
+            
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (message === '') return;
+            
+            // اضافه کردن پیام کاربر
+            addMessageToUI(message, 'user');
+            chats[currentChatId].messages.push({
+                type: 'user',
+                text: message,
+                timestamp: new Date()
+            });
+            
+            // به‌روزرسانی عنوان چت اگر پیام اول باشد
+            if (chats[currentChatId].messages.length === 2) {
+                chats[currentChatId].title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+                updateChatList();
+            }
+            
+            messageInput.value = '';
+            isWaitingForResponse = true;
+            
+            // نمایش loading
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message loading';
+            loadingDiv.innerHTML = '<span class="loading-dots"></span> در حال پردازش...';
+            document.getElementById('chatMessages').appendChild(loadingDiv);
+            scrollToBottom();
+            
+            // غیرفعال کردن دکمه ارسال
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'صبر کنید...';
+            
+            try {
+                // ارسال به n8n
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        chatId: currentChatId,
+                        timestamp: new Date().toISOString(),
+                        userId: 'user_' + Date.now() // شناسه کاربر
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // حذف loading
+                loadingDiv.remove();
+                
+                // نمایش پاسخ ربات
+                const botResponse = data.response || data.message || 'متاسفانه نتوانستم پاسخ مناسبی تولید کنم.';
+                addMessageToUI(botResponse, 'bot');
+                chats[currentChatId].messages.push({
+                    type: 'bot',
+                    text: botResponse,
+                    timestamp: new Date()
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                loadingDiv.remove();
+                addMessageToUI('خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.', 'bot');
+                chats[currentChatId].messages.push({
+                    type: 'bot',
+                    text: 'خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.',
+                    timestamp: new Date()
+                });
+            }
+            
+            // فعال کردن مجدد دکمه ارسال
+            isWaitingForResponse = false;
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'ارسال';
+            
+            // ذخیره چت‌ها
+            saveChats();
+        }
+
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChats();
+        });
+    </script>
 </body>
 </html>
