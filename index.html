@@ -115,8 +115,14 @@
             letter-spacing: -0.02em;
         }
 
-        .new-chat-btn {
-            margin: 1rem;
+        .sidebar-buttons {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .new-chat-btn, .log-btn {
             padding: 0.75rem 1rem;
             background: var(--primary-gradient);
             color: white;
@@ -133,7 +139,11 @@
             box-shadow: var(--shadow-sm);
         }
 
-        .new-chat-btn:hover {
+        .log-btn {
+            background: var(--success-color);
+        }
+
+        .new-chat-btn:hover, .log-btn:hover {
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
@@ -306,8 +316,11 @@
             padding: 0.75rem 1rem;
             border-radius: 18px;
             font-size: 0.9rem;
-            line-height: 1.5;
+            line-height: 1.6;
             word-wrap: break-word;
+            white-space: pre-wrap;
+            direction: rtl;
+            text-align: right;
         }
 
         .user .message-content {
@@ -395,6 +408,8 @@
             min-height: 20px;
             max-height: 120px;
             line-height: 1.5;
+            direction: rtl;
+            text-align: right;
         }
 
         .chat-input::placeholder {
@@ -502,6 +517,123 @@
             color: var(--text-secondary);
         }
 
+        /* Log Modal */
+        .log-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .log-modal.show {
+            display: flex;
+        }
+
+        .log-content {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .log-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .log-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .close-log {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .log-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            background: var(--secondary-color);
+        }
+
+        .log-controls {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .log-controls button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .clear-log-btn {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .download-log-btn {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .log-entry {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-left: 3px solid var(--border-color);
+            background: var(--chat-bg);
+            border-radius: 4px;
+        }
+
+        .log-entry.error {
+            border-left-color: var(--error-color);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--success-color);
+        }
+
+        .log-entry.info {
+            border-left-color: var(--primary-color);
+        }
+
+        .log-time {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
@@ -528,6 +660,11 @@
 
             .quick-actions {
                 grid-template-columns: 1fr;
+            }
+
+            .log-content {
+                width: 95%;
+                height: 90%;
             }
         }
 
@@ -561,10 +698,16 @@
                 </div>
             </div>
             
-            <button class="new-chat-btn" onclick="createNewChat()">
-                <i class="fas fa-plus"></i>
-                گفتگوی جدید
-            </button>
+            <div class="sidebar-buttons">
+                <button class="new-chat-btn" onclick="createNewChat()">
+                    <i class="fas fa-plus"></i>
+                    گفتگوی جدید
+                </button>
+                <button class="log-btn" onclick="openLogModal()">
+                    <i class="fas fa-list-alt"></i>
+                    مشاهده لاگ‌ها
+                </button>
+            </div>
             
             <div class="chat-history" id="chatHistory">
                 <!-- Chat history will be populated here -->
@@ -641,10 +784,35 @@
         </div>
     </div>
 
+    <!-- Log Modal -->
+    <div class="log-modal" id="logModal">
+        <div class="log-content">
+            <div class="log-header">
+                <h3>سیستم لاگ‌ها</h3>
+                <button class="close-log" onclick="closeLogModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="log-body" id="logBody">
+                <!-- Logs will be displayed here -->
+            </div>
+            <div class="log-controls">
+                <button class="clear-log-btn" onclick="clearLogs()">
+                    <i class="fas fa-trash"></i>
+                    پاک کردن لاگ‌ها
+                </button>
+                <button class="download-log-btn" onclick="downloadLogs()">
+                    <i class="fas fa-download"></i>
+                    دانلود لاگ‌ها
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Configuration
         const CONFIG = {
-            webhookUrl: 'https://ariantesttelc.app.n8n.cloud/webhook-test/chat',
+            webhookUrl: 'https://ariantesttelc.app.n8n.cloud/webhook/https://telc.amintayebi.ir/',
             maxRetries: 3,
             retryDelay: 2000,
             timeout: 30000,
@@ -654,6 +822,7 @@
         // Global variables
         let currentChatId = null;
         let chats = {};
+        let logs = [];
         let isConnected = false;
         let isDarkMode = false;
         let isSidebarOpen = true;
@@ -661,6 +830,7 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadChats();
+            loadLogs();
             checkConnection();
             setupAutoSave();
             setupTextareaAutoResize();
@@ -671,6 +841,108 @@
                 toggleTheme();
             }
         });
+
+        // Logging System
+        function addLog(type, message, data = null) {
+            const logEntry = {
+                id: Date.now(),
+                type: type, // 'info', 'success', 'error', 'warning'
+                message: message,
+                data: data,
+                timestamp: new Date().toISOString()
+            };
+            
+            logs.unshift(logEntry);
+            
+            // Keep only last 1000 logs
+            if (logs.length > 1000) {
+                logs = logs.slice(0, 1000);
+            }
+            
+            saveLogs();
+            console.log(`[${type.toUpperCase()}] ${message}`, data);
+        }
+
+        function saveLogs() {
+            try {
+                localStorage.setItem('telc_logs', JSON.stringify(logs));
+            } catch (error) {
+                console.error('Error saving logs:', error);
+            }
+        }
+
+        function loadLogs() {
+            try {
+                const savedLogs = localStorage.getItem('telc_logs');
+                if (savedLogs) {
+                    logs = JSON.parse(savedLogs);
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                logs = [];
+            }
+        }
+
+        function clearLogs() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید تمام لاگ‌ها را پاک کنید؟')) {
+                logs = [];
+                saveLogs();
+                renderLogs();
+                addLog('info', 'All logs cleared by user');
+            }
+        }
+
+        function downloadLogs() {
+            const logText = logs.map(log => {
+                const date = new Date(log.timestamp).toLocaleString('fa-IR');
+                const dataStr = log.data ? `\nData: ${JSON.stringify(log.data, null, 2)}` : '';
+                return `[${date}] [${log.type.toUpperCase()}] ${log.message}${dataStr}`;
+            }).join('\n\n');
+            
+            const blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `telc-logs-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            addLog('info', 'Logs downloaded by user');
+        }
+
+        function renderLogs() {
+            const logBody = document.getElementById('logBody');
+            
+            if (logs.length === 0) {
+                logBody.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">هنوز هیچ لاگی ثبت نشده است</div>';
+                return;
+            }
+            
+            logBody.innerHTML = logs.map(log => {
+                const date = new Date(log.timestamp).toLocaleString('fa-IR');
+                const dataStr = log.data ? `<pre style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.8;">${JSON.stringify(log.data, null, 2)}</pre>` : '';
+                
+                return `
+                    <div class="log-entry ${log.type}">
+                        <div class="log-time">${date}</div>
+                        <div><strong>[${log.type.toUpperCase()}]</strong> ${log.message}</div>
+                        ${dataStr}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openLogModal() {
+            renderLogs();
+            document.getElementById('logModal').classList.add('show');
+            addLog('info', 'Log modal opened');
+        }
+
+        function closeLogModal() {
+            document.getElementById('logModal').classList.remove('show');
+        }
 
         // Chat management functions
         function createNewChat() {
@@ -690,10 +962,15 @@
             clearMessages();
             showWelcomeScreen();
             updateChatTitle(chatTitle);
+            
+            addLog('info', 'New chat created', { chatId, title: chatTitle });
         }
 
         function loadChat(chatId) {
-            if (!chats[chatId]) return;
+            if (!chats[chatId]) {
+                addLog('error', 'Attempted to load non-existent chat', { chatId });
+                return;
+            }
             
             currentChatId = chatId;
             clearMessages();
@@ -708,6 +985,8 @@
             
             renderChatHistory();
             scrollToBottom();
+            
+            addLog('info', 'Chat loaded', { chatId, messageCount: chat.messages.length });
         }
 
         function deleteChat(chatId) {
@@ -722,6 +1001,8 @@
                 
                 saveChats();
                 renderChatHistory();
+                
+                addLog('info', 'Chat deleted', { chatId });
             }
         }
 
@@ -730,7 +1011,10 @@
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             
-            if (!message) return;
+            if (!message) {
+                addLog('warning', 'Attempted to send empty message');
+                return;
+            }
             
             if (!currentChatId) {
                 createNewChat();
@@ -757,6 +1041,12 @@
             }
             
             saveChats();
+            
+            addLog('info', 'User message sent', { 
+                chatId: currentChatId, 
+                messageLength: message.length 
+            });
+            
             sendToAI(message);
         }
 
@@ -776,8 +1066,15 @@
             const payload = {
                 message: message,
                 chatId: currentChatId,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                url: window.location.href
             };
+            
+            addLog('info', 'Sending request to AI webhook', { 
+                url: CONFIG.webhookUrl, 
+                payload: payload 
+            });
             
             let retries = 0;
             
@@ -785,6 +1082,10 @@
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeout);
+                    
+                    addLog('info', `Attempt ${retries + 1} of ${CONFIG.maxRetries}`, {
+                        timeout: CONFIG.timeout
+                    });
                     
                     const response = await fetch(CONFIG.webhookUrl, {
                         method: 'POST',
@@ -797,12 +1098,35 @@
                     
                     clearTimeout(timeoutId);
                     
+                    addLog('info', 'Response received', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: Object.fromEntries(response.headers.entries())
+                    });
+                    
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                     
-                    const data = await response.json();
-                    const botResponse = data.response || data.message || 'متأسفم، پاسخی دریافت نکردم.';
+                    const responseText = await response.text();
+                    addLog('info', 'Raw response received', { 
+                        responseLength: responseText.length,
+                        responsePreview: responseText.substring(0, 200)
+                    });
+                    
+                    let data;
+                    try {
+                        data = JSON.parse(responseText);
+                        addLog('success', 'Response parsed successfully', data);
+                    } catch (parseError) {
+                        addLog('warning', 'Response is not valid JSON, using as text', {
+                            parseError: parseError.message,
+                            response: responseText
+                        });
+                        data = { response: responseText };
+                    }
+                    
+                    const botResponse = data.response || data.message || data.text || responseText || 'متأسفم، پاسخی دریافت نکردم.';
                     
                     hideTypingIndicator();
                     displayMessage(botResponse, 'bot');
@@ -816,9 +1140,20 @@
                     
                     saveChats();
                     updateConnectionStatus('connected', 'آنلاین');
+                    
+                    addLog('success', 'AI response processed successfully', {
+                        responseLength: botResponse.length
+                    });
+                    
                     break;
                     
                 } catch (error) {
+                    addLog('error', `Request attempt ${retries + 1} failed`, {
+                        error: error.message,
+                        errorType: error.name,
+                        stack: error.stack
+                    });
+                    
                     console.error(`Attempt ${retries + 1} failed:`, error);
                     retries++;
                     
@@ -829,7 +1164,13 @@
                             'bot'
                         );
                         updateConnectionStatus('error', 'خطا در اتصال');
+                        
+                        addLog('error', 'All retry attempts failed', {
+                            totalAttempts: CONFIG.maxRetries,
+                            finalError: error.message
+                        });
                     } else {
+                        addLog('info', `Retrying in ${CONFIG.retryDelay}ms...`);
                         await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
                     }
                 }
@@ -965,17 +1306,29 @@
             statusText.textContent = text;
             
             isConnected = status === 'connected';
+            
+            addLog('info', 'Connection status updated', { status, text });
         }
 
         // Storage functions
         function saveChats() {
-            localStorage.setItem('telc_chats', JSON.stringify(chats));
+            try {
+                localStorage.setItem('telc_chats', JSON.stringify(chats));
+            } catch (error) {
+                addLog('error', 'Failed to save chats', { error: error.message });
+            }
         }
 
         function loadChats() {
-            const savedChats = localStorage.getItem('telc_chats');
-            if (savedChats) {
-                chats = JSON.parse(savedChats);
+            try {
+                const savedChats = localStorage.getItem('telc_chats');
+                if (savedChats) {
+                    chats = JSON.parse(savedChats);
+                    addLog('info', 'Chats loaded from storage', { chatCount: Object.keys(chats).length });
+                }
+            } catch (error) {
+                addLog('error', 'Failed to load chats', { error: error.message });
+                chats = {};
             }
             renderChatHistory();
         }
@@ -1001,19 +1354,33 @@
         // Connection check
         async function checkConnection() {
             try {
+                addLog('info', 'Checking connection to webhook');
+                
                 const response = await fetch(CONFIG.webhookUrl, {
-                    method: 'HEAD',
-                    mode: 'no-cors'
+                    method: 'OPTIONS',
+                    mode: 'cors'
                 });
+                
+                addLog('success', 'Connection check successful', {
+                    status: response.status,
+                    statusText: response.statusText
+                });
+                
                 updateConnectionStatus('connected', 'آنلاین');
             } catch (error) {
+                addLog('warning', 'Connection check failed', { error: error.message });
                 updateConnectionStatus('error', 'آفلاین');
             }
         }
 
         // Auto-save setup
         function setupAutoSave() {
-            setInterval(saveChats, CONFIG.autoSaveInterval);
+            setInterval(() => {
+                saveChats();
+                saveLogs();
+            }, CONFIG.autoSaveInterval);
+            
+            addLog('info', 'Auto-save setup completed', { interval: CONFIG.autoSaveInterval });
         }
 
         // Textarea auto-resize
@@ -1058,6 +1425,8 @@
             themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
             
             localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            
+            addLog('info', 'Theme toggled', { isDarkMode });
         }
 
         // Responsive handling
@@ -1087,8 +1456,20 @@
             }
         });
 
-        // Initialize with welcome screen
+        // Close log modal when clicking outside
+        document.getElementById('logModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeLogModal();
+            }
+        });
+
+        // Initialize with welcome screen and log startup
         showWelcomeScreen();
+        addLog('info', 'Application initialized', {
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            timestamp: new Date().toISOString()
+        });
     </script>
 </body>
 </html>
