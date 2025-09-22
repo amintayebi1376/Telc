@@ -6,7 +6,7 @@
     <title>C TelC - Assistant AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+
     <style>
         :root {
             --primary-color: #2563eb;
@@ -19,12 +19,12 @@
             --success-color: #10b981;
             --error-color: #ef4444;
             --warning-color: #f59e0b;
-            
+
             --chat-bg: #ffffff;
             --user-message: #2563eb;
             --bot-message: #f1f5f9;
             --sidebar-bg: #fafbfc;
-            
+
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
@@ -272,47 +272,33 @@
             padding: 1rem;
             overflow-y: auto;
             scroll-behavior: smooth;
-            background: linear-gradient(180deg, var(--chat-bg) 0%, var(--secondary-color) 100%);
         }
 
-        /* Modern Linear Message Design */
         .message {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
-            flex-direction: column;
-            animation: slideInUp 0.3s ease-out;
-            max-width: 100%;
+            gap: 0.75rem;
+            animation: fadeInUp 0.4s ease;
         }
 
-        @keyframes slideInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px);
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0);
-            }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
+        .message.user {
+            flex-direction: row-reverse;
         }
 
         .message-avatar {
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 500;
             flex-shrink: 0;
         }
 
@@ -326,108 +312,72 @@
             color: white;
         }
 
-        .message-sender {
-            font-weight: 500;
-            margin-left: 0.5rem;
-        }
-
-        .message-time {
-            margin-right: auto;
-            font-size: 0.75rem;
-            opacity: 0.7;
-        }
-
         .message-content {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            font-size: 0.95rem;
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            font-size: 0.9rem;
             line-height: 1.6;
-            border-radius: 16px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
-            
-            /* فارسی فیکس */
-            font-family: 'Vazirmatn', 'Inter', sans-serif;
-            direction: rtl;
-            text-align: right;
-            unicode-bidi: -webkit-plaintext;
-            unicode-bidi: plaintext;
-            white-space: pre-wrap;
             word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        .message-content:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+            white-space: pre-wrap;
+            unicode-bidi: plaintext;
         }
 
         .user .message-content {
-            background: var(--primary-gradient);
+            background: var(--user-message);
             color: white;
-            margin-right: 2rem;
             border-bottom-right-radius: 4px;
+            text-align: right;
+            direction: rtl;
         }
 
         .bot .message-content {
             background: var(--bot-message);
             color: var(--text-color);
-            margin-left: 2rem;
             border-bottom-left-radius: 4px;
-            border: 1px solid var(--border-color);
+            text-align: right;
+            direction: rtl;
         }
 
-        /* Modern Typing Indicator */
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            opacity: 0.7;
+        }
+
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
             background: var(--bot-message);
-            border-radius: 16px;
+            border-radius: 18px;
             border-bottom-left-radius: 4px;
-            margin-left: 2rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
             max-width: fit-content;
         }
 
         .typing-dots {
             display: flex;
-            gap: 4px;
+            gap: 3px;
         }
 
         .typing-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: var(--text-secondary);
             animation: typing 1.4s infinite ease-in-out both;
         }
 
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        .typing-dot:nth-child(3) { animation-delay: 0s; }
 
         @keyframes typing {
-            0%, 80%, 100% { 
-                transform: scale(0.6); 
-                opacity: 0.4; 
-            }
-            40% { 
-                transform: scale(1); 
-                opacity: 1; 
-            }
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
 
-        .typing-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* Modern Input Design */
         .chat-input-container {
             padding: 1rem 1.5rem;
             border-top: 1px solid var(--border-color);
@@ -440,16 +390,14 @@
             align-items: flex-end;
             background: var(--secondary-color);
             border-radius: 24px;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem;
             border: 2px solid transparent;
             transition: all 0.3s ease;
-            box-shadow: var(--shadow-sm);
         }
 
         .chat-input-wrapper:focus-within {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-            transform: translateY(-1px);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .chat-input {
@@ -457,28 +405,20 @@
             background: none;
             border: none;
             outline: none;
-            font-size: 0.95rem;
-            font-family: 'Vazirmatn', 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-family: inherit;
             color: var(--text-color);
             resize: none;
-            min-height: 24px;
+            min-height: 20px;
             max-height: 120px;
             line-height: 1.5;
-            
-            /* فارسی فیکس */
             direction: rtl;
             text-align: right;
-            unicode-bidi: -webkit-plaintext;
             unicode-bidi: plaintext;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
         }
 
         .chat-input::placeholder {
             color: var(--text-secondary);
-            direction: rtl;
-            text-align: right;
         }
 
         .send-button {
@@ -486,24 +426,18 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
             flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
         }
 
         .send-button:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-md);
-        }
-
-        .send-button:active {
-            transform: scale(0.95);
+            transform: scale(1.05);
         }
 
         .send-button:disabled {
@@ -521,231 +455,278 @@
             height: 100%;
             text-align: center;
             padding: 2rem;
+            background: var(--chat-bg);
         }
 
-        .welcome-logo {
-            width: 80px;
-            height: 80px;
-            background: var(--primary-gradient);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 2rem;
-            color: white;
+        .welcome-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
             margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-lg);
+            opacity: 0.8;
         }
 
         .welcome-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--text-color);
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .welcome-subtitle {
+            font-size: 1.1rem;
             color: var(--text-secondary);
             margin-bottom: 2rem;
+            line-height: 1.6;
+            max-width: 500px;
         }
 
-        .quick-actions {
+        .welcome-features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 1.5rem;
             max-width: 600px;
             width: 100%;
         }
 
-        .quick-action {
-            padding: 1rem;
-            background: var(--sidebar-bg);
+        .feature-card {
+            padding: 1.5rem;
+            background: var(--secondary-color);
+            border-radius: 16px;
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: right;
+            transition: all 0.3s ease;
         }
 
-        .quick-action:hover {
+        .feature-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
         }
 
-        .quick-action-icon {
-            font-size: 1.5rem;
+        .feature-icon {
+            font-size: 2rem;
             color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
             margin-bottom: 0.5rem;
         }
 
-        .quick-action-title {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .quick-action-desc {
-            font-size: 0.8rem;
+        .feature-description {
+            font-size: 0.9rem;
             color: var(--text-secondary);
+            line-height: 1.5;
         }
 
-        /* Log Modal */
-        .log-modal {
+        /* Modal */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
-        .log-modal.show {
+        .modal.show {
             display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--chat-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 80%;
+            max-height: 80%;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
         }
 
         .log-content {
-            background: var(--chat-bg);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 800px;
-            height: 80%;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-xl);
-        }
-
-        .log-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--primary-gradient);
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .log-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-        }
-
-        .close-log {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        .log-body {
-            flex: 1;
-            padding: 1rem;
+            max-height: 60vh;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             line-height: 1.4;
-            white-space: pre-wrap;
             background: var(--secondary-color);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .log-entry {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border-left: 3px solid var(--border-color);
+        }
+
+        .log-entry.info { border-left-color: var(--primary-color); }
+        .log-entry.success { border-left-color: var(--success-color); }
+        .log-entry.warning { border-left-color: var(--warning-color); }
+        .log-entry.error { border-left-color: var(--error-color); }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .log-level {
+            font-weight: 600;
+            margin: 0 0.5rem;
+        }
+
+        .log-level.info { color: var(--primary-color); }
+        .log-level.success { color: var(--success-color); }
+        .log-level.warning { color: var(--warning-color); }
+        .log-level.error { color: var(--error-color); }
+
+        .log-message {
+            color: var(--text-color);
+        }
+
+        .log-data {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--chat-bg);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
         }
 
         .log-controls {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--border-color);
+            margin-bottom: 1rem;
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
         }
 
         .log-controls button {
             padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
             cursor: pointer;
-            font-size: 0.9rem;
             transition: all 0.2s ease;
         }
 
-        .clear-log-btn {
+        .log-controls button:hover {
+            background: var(--primary-gradient);
+        }
+
+        .log-controls button.danger {
             background: var(--error-color);
-            color: white;
-        }
-
-        .download-log-btn {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .log-entry {
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            border-left: 3px solid var(--border-color);
-            background: var(--chat-bg);
-            border-radius: 4px;
-        }
-
-        .log-entry.error {
-            border-left-color: var(--error-color);
-        }
-
-        .log-entry.success {
-            border-left-color: var(--success-color);
-        }
-
-        .log-entry.info {
-            border-left-color: var(--primary-color);
-        }
-
-        .log-entry.warning {
-            border-left-color: var(--warning-color);
-        }
-
-        .log-time {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-bottom: 0.25rem;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
-                position: absolute;
-                top: 0;
-                right: 0;
+                position: fixed;
+                left: -300px;
+                z-index: 100;
                 height: 100vh;
-                z-index: 1000;
-                transform: translateX(100%);
+                width: 280px;
             }
 
             .sidebar.open {
-                transform: translateX(0);
+                left: 0;
             }
 
             .sidebar.collapsed {
-                width: 300px;
-                transform: translateX(100%);
+                left: -300px;
+                width: 280px;
             }
 
-            .user .message-content {
-                margin-right: 1rem;
-            }
-            
-            .bot .message-content {
-                margin-left: 1rem;
+            .main-content {
+                width: 100%;
             }
 
-            .quick-actions {
+            .message-content {
+                max-width: 85%;
+            }
+
+            .welcome-features {
                 grid-template-columns: 1fr;
             }
 
-            .log-content {
-                width: 95%;
-                height: 90%;
+            .modal-content {
+                max-width: 95%;
+                margin: 1rem;
             }
+        }
+
+        @media (max-width: 480px) {
+            .chat-header {
+                padding: 0.75rem 1rem;
+            }
+
+            .chat-messages {
+                padding: 0.5rem;
+            }
+
+            .chat-input-container {
+                padding: 0.75rem 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .welcome-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
         /* Scrollbar Styling */
@@ -765,19 +746,55 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-secondary);
         }
+
+        /* Enhanced focus states */
+        button:focus,
+        .chat-input:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Animation for status updates */
+        .status-dot {
+            transition: background-color 0.3s ease;
+        }
+
+        /* Enhanced hover effects */
+        .chat-item,
+        .feature-card,
+        .log-entry {
+            cursor: pointer;
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar,
+            .chat-input-container {
+                display: none !important;
+            }
+
+            .main-content {
+                width: 100% !important;
+            }
+
+            .chat-messages {
+                height: auto !important;
+                overflow: visible !important;
+            }
+        }
     </style>
 </head>
-<body>
+<body data-theme="light">
     <div class="app-container">
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-container">
                     <div class="logo">C</div>
                     <div class="logo-text">TelC Assistant</div>
                 </div>
             </div>
-            
+
             <div class="sidebar-buttons">
                 <button class="new-chat-btn" onclick="createNewChat()">
                     <i class="fas fa-plus"></i>
@@ -788,23 +805,23 @@
                     مشاهده لاگ‌ها
                 </button>
             </div>
-            
+
             <div class="chat-history" id="chatHistory">
                 <!-- Chat history will be populated here -->
             </div>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div class="main-content">
-            <div class="chat-header">
+        <main class="main-content">
+            <header class="chat-header">
                 <div class="chat-title">
                     <button class="sidebar-toggle" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="chat-info">
-                        <h2 id="chatTitle">C TelC Assistant</h2>
-                        <div class="connection-status">
-                            <span class="status-dot" id="statusDot"></span>
+                        <h2 id="chatTitle">TelC Assistant</h2>
+                        <div class="connection-status" id="connectionStatus">
+                            <div class="status-dot" id="statusDot"></div>
                             <span id="statusText">بررسی اتصال...</span>
                         </div>
                     </div>
@@ -814,45 +831,18 @@
                         <i class="fas fa-moon" id="themeIcon"></i>
                     </button>
                 </div>
-            </div>
+            </header>
 
             <div class="chat-messages" id="chatMessages">
-                <div class="welcome-screen" id="welcomeScreen">
-                    <div class="welcome-logo">C</div>
-                    <h1 class="welcome-title">به C TelC Assistant خوش آمدید</h1>
-                    <p class="welcome-subtitle">من اینجا هستم تا به شما کمک کنم. سوال خود را بپرسید!</p>
-                    
-                    <div class="quick-actions">
-                        <div class="quick-action" onclick="sendQuickMessage('سلام! می‌توانید درباره خودتان بگویید؟')">
-                            <div class="quick-action-icon"><i class="fas fa-robot"></i></div>
-                            <div class="quick-action-title">آشنایی</div>
-                            <div class="quick-action-desc">درباره قابلیت‌های من بیشتر بدانید</div>
-                        </div>
-                        <div class="quick-action" onclick="sendQuickMessage('می‌توانید به من در تحلیل داده کمک کنید؟')">
-                            <div class="quick-action-icon"><i class="fas fa-chart-bar"></i></div>
-                            <div class="quick-action-title">تحلیل داده</div>
-                            <div class="quick-action-desc">کمک در تحلیل و بررسی داده‌ها</div>
-                        </div>
-                        <div class="quick-action" onclick="sendQuickMessage('لطفاً یک برنامه کاری برای من ایجاد کنید')">
-                            <div class="quick-action-icon"><i class="fas fa-calendar"></i></div>
-                            <div class="quick-action-title">برنامه‌ریزی</div>
-                            <div class="quick-action-desc">کمک در سازماندهی وقت</div>
-                        </div>
-                        <div class="quick-action" onclick="sendQuickMessage('نیاز به کمک در نوشتن متن دارم')">
-                            <div class="quick-action-icon"><i class="fas fa-pen"></i></div>
-                            <div class="quick-action-title">نوشتن</div>
-                            <div class="quick-action-desc">کمک در تولید و ویرایش متن</div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Welcome screen will be shown initially -->
             </div>
 
             <div class="chat-input-container">
                 <div class="chat-input-wrapper">
                     <textarea 
-                        class="chat-input" 
                         id="messageInput" 
-                        placeholder="پیام خود را اینجا بنویسید..."
+                        class="chat-input" 
+                        placeholder="پیام خود را بنویسید..." 
                         onkeydown="handleKeyDown(event)"
                         rows="1"
                     ></textarea>
@@ -861,356 +851,149 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Log Modal -->
-    <div class="log-modal" id="logModal">
-        <div class="log-content">
-            <div class="log-header">
-                <h3>سیستم لاگ‌ها</h3>
-                <button class="close-log" onclick="closeLogModal()">
+    <div class="modal" id="logModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">سیستم لاگ‌ها</h3>
+                <button class="modal-close" onclick="closeLogModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="log-body" id="logBody">
-                <!-- Logs will be displayed here -->
-            </div>
             <div class="log-controls">
-                <button class="clear-log-btn" onclick="clearLogs()">
-                    <i class="fas fa-trash"></i>
-                    پاک کردن لاگ‌ها
+                <button onclick="refreshLogs()">
+                    <i class="fas fa-sync-alt"></i> بروزرسانی
                 </button>
-                <button class="download-log-btn" onclick="downloadLogs()">
-                    <i class="fas fa-download"></i>
-                    دانلود لاگ‌ها
+                <button onclick="downloadLogs()">
+                    <i class="fas fa-download"></i> دانلود
                 </button>
+                <button onclick="clearLogs()" class="danger">
+                    <i class="fas fa-trash"></i> پاک کردن
+                </button>
+            </div>
+            <div class="log-content" id="logContent">
+                <!-- Logs will be populated here -->
             </div>
         </div>
     </div>
 
     <script>
-        // Configuration
+        // ⭐ تغییر اصلی: استفاده از Cloudflare Worker Proxy
         const CONFIG = {
-            webhookUrl: 'https://ariantesttelc.app.n8n.cloud/webhook-test/chat',
+            webhookUrl: 'https://proxy.telc.amintayebi.ir', // 🚀 از Cloudflare Worker استفاده می‌کند
+            fallbackUrl: 'https://ariantesttelc.app.n8n.cloud/webhook-test/chat', // 🔄 fallback برای مواقع اضطراری
             maxRetries: 3,
             retryDelay: 2000,
-            timeout: 30000,
+            requestTimeout: 30000,
             autoSaveInterval: 30000
         };
 
         // Global variables
-        let currentChatId = null;
         let chats = {};
+        let currentChatId = null;
         let logs = [];
-        let isConnected = false;
         let isDarkMode = false;
         let isSidebarOpen = true;
 
-        // Initialize app
+        // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
             addLog('info', 'Application starting up', {
                 userAgent: navigator.userAgent,
                 url: window.location.href,
                 timestamp: new Date().toISOString()
             });
-            
+
             loadChats();
+            renderChatHistory();
             loadLogs();
             checkConnection();
             setupAutoSave();
             setupTextareaAutoResize();
             
-            // Check for saved theme
+            // Load theme
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 toggleTheme();
             }
-            
+
             addLog('success', 'Application initialized successfully');
         });
 
-        // Logging System
-        function addLog(type, message, data = null) {
-            const logEntry = {
-                id: Date.now(),
-                type: type, // 'info', 'success', 'error', 'warning'
-                message: message,
-                data: data,
-                timestamp: new Date().toISOString()
-            };
-            
-            logs.unshift(logEntry);
-            
-            // Keep only last 1000 logs
-            if (logs.length > 1000) {
-                logs = logs.slice(0, 1000);
-            }
-            
-            saveLogs();
-            
-            // Console log with Persian date
-            const persianDate = new Date().toLocaleString('fa-IR', {
+        // Enhanced logging system
+        function addLog(level, message, data = null) {
+            const timestamp = new Date();
+            const jalaliTimestamp = new Intl.DateTimeFormat('fa-IR', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit'
-            });
-            
-            console.log(`[${persianDate}] [${type.toUpperCase()}] ${message}`, data || '');
-        }
+            }).format(timestamp);
 
-        function saveLogs() {
-            try {
-                localStorage.setItem('telc_logs', JSON.stringify(logs));
-            } catch (error) {
-                console.error('Error saving logs:', error);
-            }
-        }
-
-        function loadLogs() {
-            try {
-                const savedLogs = localStorage.getItem('telc_logs');
-                if (savedLogs) {
-                    logs = JSON.parse(savedLogs);
-                    addLog('info', 'Logs loaded from storage', { logCount: logs.length });
-                }
-            } catch (error) {
-                console.error('Error loading logs:', error);
-                logs = [];
-            }
-        }
-
-        function clearLogs() {
-            if (confirm('آیا مطمئن هستید که می‌خواهید تمام لاگ‌ها را پاک کنید؟')) {
-                logs = [];
-                saveLogs();
-                renderLogs();
-                addLog('info', 'All logs cleared by user');
-            }
-        }
-
-        function downloadLogs() {
-            const logText = logs.map(log => {
-                const date = new Date(log.timestamp).toLocaleString('fa-IR');
-                const dataStr = log.data ? `\nData: ${JSON.stringify(log.data, null, 2)}` : '';
-                return `[${date}] [${log.type.toUpperCase()}] ${log.message}${dataStr}`;
-            }).join('\n\n');
-            
-            const blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `telc-logs-${new Date().toISOString().split('T')[0]}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            addLog('info', 'Logs downloaded by user');
-        }
-
-        function renderLogs() {
-            const logBody = document.getElementById('logBody');
-            
-            if (logs.length === 0) {
-                logBody.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">هنوز هیچ لاگی ثبت نشده است</div>';
-                return;
-            }
-            
-            logBody.innerHTML = logs.map(log => {
-                const date = new Date(log.timestamp).toLocaleString('fa-IR');
-                const dataStr = log.data ? `<pre style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.8; white-space: pre-wrap; direction: ltr; text-align: left;">${JSON.stringify(log.data, null, 2)}</pre>` : '';
-                
-                return `
-                    <div class="log-entry ${log.type}">
-                        <div class="log-time">${date}</div>
-                        <div><strong>[${log.type.toUpperCase()}]</strong> ${log.message}</div>
-                        ${dataStr}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function openLogModal() {
-            renderLogs();
-            document.getElementById('logModal').classList.add('show');
-            addLog('info', 'Log modal opened');
-        }
-
-        function closeLogModal() {
-            document.getElementById('logModal').classList.remove('show');
-        }
-
-        // Chat management functions
-        function createNewChat() {
-            const chatId = Date.now().toString();
-            const chatTitle = `گفتگو ${Object.keys(chats).length + 1}`;
-            
-            chats[chatId] = {
-                id: chatId,
-                title: chatTitle,
-                messages: [],
-                createdAt: new Date().toISOString()
+            const logEntry = {
+                timestamp: jalaliTimestamp,
+                level,
+                message,
+                data,
+                id: Date.now() + Math.random()
             };
+
+            logs.push(logEntry);
             
-            currentChatId = chatId;
-            saveChats();
-            renderChatHistory();
-            clearMessages();
-            showWelcomeScreen();
-            updateChatTitle(chatTitle);
+            // Keep only last 1000 logs to prevent memory issues
+            if (logs.length > 1000) {
+                logs = logs.slice(-1000);
+            }
+
+            // Save to localStorage
+            saveLogs();
+
+            // Console output for debugging
+            const consoleMethod = level === 'error' ? 'error' : 
+                                level === 'warning' ? 'warn' : 
+                                level === 'success' ? 'log' : 'log';
             
-            addLog('info', 'New chat created', { chatId, title: chatTitle });
+            console[consoleMethod](`[${jalaliTimestamp}] [${level.toUpperCase()}] ${message}`, data || '');
         }
 
-        function loadChat(chatId) {
-            if (!chats[chatId]) {
-                addLog('error', 'Attempted to load non-existent chat', { chatId });
-                return;
-            }
-            
-            currentChatId = chatId;
-            clearMessages();
-            hideWelcomeScreen();
-            
-            const chat = chats[chatId];
-            updateChatTitle(chat.title);
-            
-            chat.messages.forEach(message => {
-                displayMessage(message.content, message.type, false);
-            });
-            
-            renderChatHistory();
-            scrollToBottom();
-            
-            addLog('info', 'Chat loaded', { chatId, messageCount: chat.messages.length });
-        }
+        // Enhanced AI communication with fallback
+        async function sendToAI(payload) {
+            const maxRetries = CONFIG.maxRetries;
+            let lastError = null;
 
-        function deleteChat(chatId) {
-            if (confirm('آیا مطمئن هستید که می‌خواهید این گفتگو را حذف کنید؟')) {
-                delete chats[chatId];
-                
-                if (currentChatId === chatId) {
-                    currentChatId = null;
-                    clearMessages();
-                    showWelcomeScreen();
-                }
-                
-                saveChats();
-                renderChatHistory();
-                
-                addLog('info', 'Chat deleted', { chatId });
-            }
-        }
+            // 🔄 تابع helper برای امتحان کردن یک URL
+            async function tryRequest(url, attempt) {
+                addLog('info', `Attempt ${attempt} of ${maxRetries}`, {
+                    timeout: CONFIG.requestTimeout,
+                    payload: payload
+                });
 
-        // Message functions
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message) {
-                addLog('warning', 'Attempted to send empty message');
-                return;
-            }
-            
-            if (!currentChatId) {
-                createNewChat();
-            }
-            
-            hideWelcomeScreen();
-            displayMessage(message, 'user');
-            input.value = '';
-            resetTextareaHeight();
-            
-            // Add message to chat history
-            chats[currentChatId].messages.push({
-                content: message,
-                type: 'user',
-                timestamp: new Date().toISOString()
-            });
-            
-            // Update chat title if it's the first message
-            if (chats[currentChatId].messages.length === 1) {
-                const title = message.length > 30 ? message.substring(0, 30) + '...' : message;
-                chats[currentChatId].title = title;
-                updateChatTitle(title);
-                renderChatHistory();
-            }
-            
-            saveChats();
-            
-            addLog('info', 'User message sent', { 
-                chatId: currentChatId, 
-                messageLength: message.length,
-                messagePreview: message.substring(0, 50)
-            });
-            
-            sendToAI(message);
-        }
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    addLog('warning', 'Request timed out', { timeout: CONFIG.requestTimeout });
+                }, CONFIG.requestTimeout);
 
-        function sendQuickMessage(message) {
-            if (!currentChatId) {
-                createNewChat();
-            }
-            
-            document.getElementById('messageInput').value = message;
-            sendMessage();
-        }
-
-        async function sendToAI(message) {
-            showTypingIndicator();
-            updateConnectionStatus('connecting', 'در حال ارسال...');
-            
-            const payload = {
-                message: message,
-                chatId: currentChatId,
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent,
-                url: window.location.href
-            };
-            
-            addLog('info', 'Preparing to send request to webhook', { 
-                url: CONFIG.webhookUrl, 
-                messageLength: message.length
-            });
-            
-            let retries = 0;
-            
-            while (retries < CONFIG.maxRetries) {
                 try {
-                    addLog('info', `Attempt ${retries + 1} of ${CONFIG.maxRetries}`, {
-                        timeout: CONFIG.timeout,
-                        payload: payload
-                    });
-                    
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => {
-                        controller.abort();
-                        addLog('warning', 'Request timed out', { timeout: CONFIG.timeout });
-                    }, CONFIG.timeout);
-                    
                     addLog('info', 'Sending HTTP request', {
                         method: 'POST',
-                        url: CONFIG.webhookUrl,
+                        url: url,
                         headers: { 'Content-Type': 'application/json' }
                     });
-                    
-                    const response = await fetch(CONFIG.webhookUrl, {
+
+                    const response = await fetch(url, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json, text/plain, */*',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),
-                        signal: controller.signal,
-                        mode: 'cors'
+                        signal: controller.signal
                     });
-                    
+
                     clearTimeout(timeoutId);
-                    
+
                     addLog('success', 'HTTP response received', {
                         status: response.status,
                         statusText: response.statusText,
@@ -1219,214 +1002,281 @@
                         type: response.type,
                         url: response.url
                     });
-                    
+
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        addLog('error', 'HTTP error response', {
-                            status: response.status,
-                            statusText: response.statusText,
-                            errorText: errorText
-                        });
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}\n${errorText}`);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
+
                     const responseText = await response.text();
-                    addLog('info', 'Response body received', { 
+                    
+                    addLog('info', 'Response body received', {
                         responseLength: responseText.length,
                         contentType: response.headers.get('content-type'),
-                        responsePreview: responseText.substring(0, 200)
+                        responsePreview: responseText.substring(0, 100)
                     });
-                    
-                    let data;
-                    let botResponse;
-                    
+
+                    // Try to parse as JSON
                     try {
-                        data = JSON.parse(responseText);
-                        addLog('success', 'Response parsed as JSON', data);
-                        botResponse = data.response || data.message || data.text || data.reply || 'پاسخ دریافت شد اما محتوا خالی است.';
+                        const jsonResponse = JSON.parse(responseText);
+                        addLog('success', 'Response parsed as JSON', jsonResponse);
+                        return jsonResponse;
                     } catch (parseError) {
-                        addLog('info', 'Response is not JSON, treating as plain text', {
+                        addLog('warning', 'Response is not valid JSON, treating as text', {
                             parseError: parseError.message,
-                            responseText: responseText
+                            responsePreview: responseText.substring(0, 200)
                         });
-                        botResponse = responseText || 'پاسخ خالی دریافت شد.';
+                        return { message: responseText };
                     }
-                    
-                    hideTypingIndicator();
-                    displayMessage(botResponse, 'bot');
-                    
-                    // Add bot response to chat history
-                    chats[currentChatId].messages.push({
-                        content: botResponse,
-                        type: 'bot',
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    saveChats();
-                    updateConnectionStatus('connected', 'آنلاین');
-                    
-                    addLog('success', 'AI response processed and displayed', {
-                        responseLength: botResponse.length,
-                        chatId: currentChatId
-                    });
-                    
-                    break;
-                    
+
                 } catch (error) {
-                    addLog('error', `Request attempt ${retries + 1} failed`, {
+                    clearTimeout(timeoutId);
+                    
+                    addLog('error', `Request attempt ${attempt} failed`, {
                         error: error.message,
                         errorType: error.name,
                         stack: error.stack,
-                        retryAttempt: retries + 1,
-                        maxRetries: CONFIG.maxRetries
+                        retryAttempt: attempt,
+                        maxRetries: maxRetries
                     });
+
+                    throw error;
+                }
+            }
+
+            // 🚀 اول Proxy رو امتحان کن
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    return await tryRequest(CONFIG.webhookUrl, attempt);
+                } catch (error) {
+                    lastError = error;
                     
-                    console.error(`Attempt ${retries + 1} failed:`, error);
-                    retries++;
-                    
-                    if (retries >= CONFIG.maxRetries) {
-                        hideTypingIndicator();
-                        const errorMessage = 'متأسفم، در حال حاضر قادر به پاسخ‌دهی نیستم. لطفاً بعداً دوباره تلاش کنید.';
-                        displayMessage(errorMessage, 'bot');
-                        updateConnectionStatus('error', 'خطا در اتصال');
-                        
-                        // Add error message to chat history
-                        chats[currentChatId].messages.push({
-                            content: errorMessage,
-                            type: 'bot',
-                            timestamp: new Date().toISOString()
-                        });
-                        saveChats();
-                        
-                        addLog('error', 'All retry attempts failed', {
-                            totalAttempts: CONFIG.maxRetries,
-                            finalError: error.message,
-                            chatId: currentChatId
-                        });
-                    } else {
+                    if (attempt < maxRetries) {
                         addLog('info', `Retrying in ${CONFIG.retryDelay}ms...`, {
-                            nextAttempt: retries + 1,
-                            remainingAttempts: CONFIG.maxRetries - retries
+                            nextAttempt: attempt + 1,
+                            remainingAttempts: maxRetries - attempt
                         });
                         await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
                     }
                 }
             }
+
+            // 🔄 اگر proxy کار نکرد، fallback رو امتحان کن
+            addLog('warning', 'Proxy failed, trying fallback URL', {
+                proxyUrl: CONFIG.webhookUrl,
+                fallbackUrl: CONFIG.fallbackUrl
+            });
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const result = await tryRequest(CONFIG.fallbackUrl, attempt);
+                    addLog('success', 'Fallback URL succeeded', { fallbackUrl: CONFIG.fallbackUrl });
+                    return result;
+                } catch (error) {
+                    lastError = error;
+                    
+                    if (attempt < maxRetries) {
+                        addLog('info', `Retrying fallback in ${CONFIG.retryDelay}ms...`, {
+                            nextAttempt: attempt + 1,
+                            remainingAttempts: maxRetries - attempt
+                        });
+                        await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
+                    }
+                }
+            }
+
+            // همه تلاش‌ها شکست خورد
+            addLog('error', 'All retry attempts failed', {
+                totalAttempts: maxRetries * 2, // proxy + fallback
+                finalError: lastError?.message,
+                chatId: payload.chatId
+            });
+
+            throw lastError;
         }
 
-        function displayMessage(content, type, saveToHistory = true) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            
-            // Modern linear design
-            const messageHeader = document.createElement('div');
-            messageHeader.className = 'message-header';
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = type === 'user' ? 'شما' : 'C';
-            
-            const sender = document.createElement('div');
-            sender.className = 'message-sender';
-            sender.textContent = type === 'user' ? 'شما' : 'C TelC';
-            
-            const time = document.createElement('div');
-            time.className = 'message-time';
-            time.textContent = new Date().toLocaleTimeString('fa-IR', {
-                hour: '2-digit',
-                minute: '2-digit'
+        // Message sending functionality
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || message.length === 0) return;
+
+            // Create new chat if none exists
+            if (!currentChatId) {
+                createNewChat();
+            }
+
+            const chatId = currentChatId;
+            const messageLength = message.length;
+
+            addLog('info', 'User message sent', {
+                chatId,
+                messageLength,
+                messagePreview: message.substring(0, 50)
             });
-            
-            messageHeader.appendChild(avatar);
-            messageHeader.appendChild(sender);
-            messageHeader.appendChild(time);
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            messageContent.textContent = content;
-            
-            messageDiv.appendChild(messageHeader);
-            messageDiv.appendChild(messageContent);
-            
-            messagesContainer.appendChild(messageDiv);
+
+            // Add user message to chat
+            addMessage('user', message);
+            input.value = '';
+            resetTextareaHeight();
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            const payload = {
+                message,
+                chatId,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                url: window.location.href
+            };
+
+            addLog('info', 'Preparing to send request to webhook', {
+                url: CONFIG.webhookUrl,
+                messageLength
+            });
+
+            updateConnectionStatus('connecting', 'در حال ارسال...');
+
+            try {
+                const response = await sendToAI(payload);
+                
+                hideTypingIndicator();
+                updateConnectionStatus('connected', 'آنلاین');
+
+                // Handle response
+                let botMessage = '';
+                if (typeof response === 'object' && response.message) {
+                    botMessage = response.message;
+                } else if (typeof response === 'string') {
+                    botMessage = response;
+                } else {
+                    botMessage = 'پاسخ دریافت شد';
+                }
+
+                addMessage('bot', botMessage);
+                
+                addLog('success', 'AI response processed and displayed', {
+                    responseLength: botMessage.length,
+                    chatId
+                });
+
+                // Save chat
+                saveChats();
+
+            } catch (error) {
+                hideTypingIndicator();
+                updateConnectionStatus('error', 'خطا در اتصال');
+
+                const errorMessage = 'متأسفم، در حال حاضر قادر به پاسخ‌دهی نیستم. لطفاً دوباره تلاش کنید.';
+                addMessage('bot', errorMessage);
+
+                addLog('error', 'Failed to get AI response', {
+                    error: error.message,
+                    chatId,
+                    userMessage: message.substring(0, 100)
+                });
+            }
+        }
+
+        // Message handling
+        function addMessage(type, content) {
+            if (!currentChatId) return;
+
+            const timestamp = new Date();
+            const messageData = {
+                id: Date.now() + Math.random(),
+                type,
+                content,
+                timestamp: timestamp.toISOString()
+            };
+
+            if (!chats[currentChatId]) {
+                chats[currentChatId] = {
+                    id: currentChatId,
+                    title: 'گفتگو جدید',
+                    messages: [],
+                    createdAt: timestamp.toISOString()
+                };
+            }
+
+            chats[currentChatId].messages.push(messageData);
+
+            // Update chat title with first message
+            if (type === 'user' && chats[currentChatId].messages.filter(m => m.type === 'user').length === 1) {
+                chats[currentChatId].title = content.substring(0, 30) + (content.length > 30 ? '...' : '');
+                renderChatHistory();
+            }
+
+            renderMessages();
             scrollToBottom();
         }
 
-        // UI Helper functions
+        function renderMessages() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const chat = chats[currentChatId];
+
+            if (!chat || !chat.messages) {
+                showWelcomeScreen();
+                return;
+            }
+
+            messagesContainer.innerHTML = '';
+
+            chat.messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.type}`;
+
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.textContent = msg.type === 'user' ? 'شما' : 'AI';
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.textContent = msg.content;
+
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(contentDiv);
+
+                messagesContainer.appendChild(messageDiv);
+            });
+
+            scrollToBottom();
+        }
+
         function showTypingIndicator() {
             const messagesContainer = document.getElementById('chatMessages');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot';
-            typingDiv.id = 'typingIndicator';
             
-            const typingContent = document.createElement('div');
-            typingContent.className = 'typing-indicator';
-            typingContent.innerHTML = `
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'message bot';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.innerHTML = `
+                <span>در حال تایپ</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
-                <div class="typing-text">در حال تایپ...</div>
             `;
             
-            typingDiv.appendChild(typingContent);
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(indicator);
             messagesContainer.appendChild(typingDiv);
+            
             scrollToBottom();
         }
 
         function hideTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-        }
-
-        function clearMessages() {
-            const messagesContainer = document.getElementById('chatMessages');
-            messagesContainer.innerHTML = '';
-        }
-
-        function showWelcomeScreen() {
-            const messagesContainer = document.getElementById('chatMessages');
-            const welcomeScreen = `
-                <div class="welcome-screen" id="welcomeScreen">
-                    <div class="welcome-logo">C</div>
-                    <h1 class="welcome-title">به C TelC Assistant خوش آمدید</h1>
-                    <p class="welcome-subtitle">من اینجا هستم تا به شما کمک کنم. سوال خود را بپرسید!</p>
-                    
-                    <div class="quick-actions">
-                        <div class="quick-action" onclick="sendQuickMessage('سلام! می‌توانید درباره خودتان بگویید؟')">
-                            <div class="quick-action-icon"><i class="fas fa-robot"></i></div>
-                            <div class="quick-action-title">آشنایی</div>
-                            <div class="quick-action-desc">درباره قابلیت‌های من بیشتر بدانید</div>
-                        </div>
-                        <div class="quick-action" onclick="sendQuickMessage('می‌توانید به من در تحلیل داده کمک کنید؟')">
-                            <div class="quick-action-icon"><i class="fas fa-chart-bar"></i></div>
-                            <div class="quick-action-title">تحلیل داده</div>
-                            <div class="quick-action-desc">کمک در تحلیل و بررسی داده‌ها</div>
-                        </div>
-                        <div class="quick-action" onclick="sendQuickMessage('لطفاً یک برنامه کاری برای من ایجاد کنید')">
-                            <div class="quick-action-icon"><i class="fas fa-calendar"></i></div>
-                            <div class="quick-action-title">برنامه‌ریزی</div>
-                            <div class="quick-action-desc">کمک در سازماندهی وقت</div>
-                        </div>
-                        <div class="quick-action" onclick="sendQuickMessage('نیاز به کمک در نوشتن متن دارم')">
-                            <div class="quick-action-icon"><i class="fas fa-pen"></i></div>
-                            <div class="quick-action-title">نوشتن</div>
-                            <div class="quick-action-desc">کمک در تولید و ویرایش متن</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            messagesContainer.innerHTML = welcomeScreen;
-        }
-
-        function hideWelcomeScreen() {
-            const welcomeScreen = document.getElementById('welcomeScreen');
-            if (welcomeScreen) {
-                welcomeScreen.remove();
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
             }
         }
 
@@ -1435,53 +1285,236 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function updateChatTitle(title) {
-            document.getElementById('chatTitle').textContent = title;
+        // Chat management
+        function createNewChat() {
+            const chatId = Date.now().toString();
+            const chatCount = Object.keys(chats).length + 1;
+            
+            currentChatId = chatId;
+            chats[chatId] = {
+                id: chatId,
+                title: `گفتگو ${chatCount}`,
+                messages: [],
+                createdAt: new Date().toISOString()
+            };
+
+            addLog('info', 'New chat created', {
+                chatId,
+                title: `گفتگو ${chatCount}`
+            });
+
+            renderChatHistory();
+            renderMessages();
+            updateChatTitle();
+            saveChats();
+
+            // Focus on input
+            document.getElementById('messageInput').focus();
         }
 
-        function updateConnectionStatus(status, text) {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-            
-            statusDot.className = `status-dot ${status}`;
-            statusText.textContent = text;
-            
-            isConnected = status === 'connected';
-            
-            addLog('info', 'Connection status updated', { status, text });
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            renderMessages();
+            renderChatHistory();
+            updateChatTitle();
+
+            addLog('info', 'Chat loaded', {
+                chatId,
+                messageCount: chats[chatId]?.messages?.length || 0
+            });
         }
 
-        // Storage functions
+        function updateChatTitle() {
+            const titleElement = document.getElementById('chatTitle');
+            if (currentChatId && chats[currentChatId]) {
+                titleElement.textContent = chats[currentChatId].title;
+            } else {
+                titleElement.textContent = 'TelC Assistant';
+            }
+        }
+
+        // Storage management
         function saveChats() {
             try {
                 localStorage.setItem('telc_chats', JSON.stringify(chats));
+                localStorage.setItem('telc_current_chat', currentChatId);
             } catch (error) {
-                addLog('error', 'Failed to save chats to localStorage', { error: error.message });
+                addLog('error', 'Failed to save chats', { error: error.message });
             }
         }
 
         function loadChats() {
             try {
                 const savedChats = localStorage.getItem('telc_chats');
+                const savedCurrentChat = localStorage.getItem('telc_current_chat');
+
                 if (savedChats) {
                     chats = JSON.parse(savedChats);
-                    addLog('info', 'Chats loaded from localStorage', { chatCount: Object.keys(chats).length });
-                } else {
-                    addLog('info', 'No saved chats found in localStorage');
                 }
+
+                if (savedCurrentChat && chats[savedCurrentChat]) {
+                    currentChatId = savedCurrentChat;
+                }
+
+                addLog('info', 'Chats loaded from localStorage', {
+                    chatCount: Object.keys(chats).length
+                });
+
             } catch (error) {
-                addLog('error', 'Failed to load chats from localStorage', { error: error.message });
+                addLog('error', 'Failed to load chats', { error: error.message });
                 chats = {};
+                currentChatId = null;
             }
-            renderChatHistory();
+        }
+
+        function saveLogs() {
+            try {
+                localStorage.setItem('telc_logs', JSON.stringify(logs.slice(-500))); // Save only last 500 logs
+            } catch (error) {
+                console.error('Failed to save logs:', error);
+            }
+        }
+
+        function loadLogs() {
+            try {
+                const savedLogs = localStorage.getItem('telc_logs');
+                if (savedLogs) {
+                    logs = JSON.parse(savedLogs);
+                }
+
+                addLog('info', 'Logs loaded from storage', { logCount: logs.length });
+
+            } catch (error) {
+                console.error('Failed to load logs:', error);
+                logs = [];
+            }
+        }
+
+        // UI Updates
+        function updateConnectionStatus(status, text) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+
+            addLog('info', 'Connection status updated', { status, text });
+        }
+
+        function showWelcomeScreen() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = `
+                <div class="welcome-screen">
+                    <div class="welcome-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h1 class="welcome-title">به TelC Assistant خوش آمدید</h1>
+                    <p class="welcome-subtitle">
+                        من یک دستیار هوشمند هستم که آماده کمک به شما در انواع سوالات و مسائل مختلف می‌باشم.
+                    </p>
+                    <div class="welcome-features">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h3 class="feature-title">گفتگوی طبیعی</h3>
+                            <p class="feature-description">
+                                با من به زبان فارسی صحبت کنید و پاسخ‌های دقیق دریافت کنید
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h3 class="feature-title">راهنمایی هوشمند</h3>
+                            <p class="feature-description">
+                                از حل مسائل تا ارائه ایده‌های خلاقانه، در همه موارد کمکتان می‌کنم
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Log modal management
+        function openLogModal() {
+            const modal = document.getElementById('logModal');
+            modal.classList.add('show');
+            renderLogs();
+
+            addLog('info', 'Log modal opened');
+        }
+
+        function closeLogModal() {
+            const modal = document.getElementById('logModal');
+            modal.classList.remove('show');
+        }
+
+        function renderLogs() {
+            const logContent = document.getElementById('logContent');
+            
+            if (logs.length === 0) {
+                logContent.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">هیچ لاگی موجود نیست</div>';
+                return;
+            }
+
+            // Reverse logs to show newest first
+            const reversedLogs = [...logs].reverse();
+            
+            logContent.innerHTML = reversedLogs.map(log => `
+                <div class="log-entry ${log.level}">
+                    <div>
+                        <span class="log-timestamp">[${log.timestamp}]</span>
+                        <span class="log-level ${log.level}">[${log.level.toUpperCase()}]</span>
+                        <span class="log-message">${log.message}</span>
+                    </div>
+                    ${log.data ? `<div class="log-data">${typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : log.data}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function refreshLogs() {
+            renderLogs();
+            addLog('info', 'Logs refreshed manually');
+        }
+
+        function downloadLogs() {
+            const logData = logs.map(log => {
+                let line = `[${log.timestamp}] [${log.level.toUpperCase()}] ${log.message}`;
+                if (log.data) {
+                    line += `\nData: ${typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : log.data}`;
+                }
+                return line;
+            }).join('\n\n');
+
+            const blob = new Blob([logData], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `telc-logs-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            addLog('info', 'Logs downloaded', { filename: a.download });
+        }
+
+        function clearLogs() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید همه لاگ‌ها پاک شوند؟')) {
+                logs = [];
+                saveLogs();
+                renderLogs();
+                addLog('info', 'All logs cleared by user');
+            }
         }
 
         function renderChatHistory() {
             const chatHistory = document.getElementById('chatHistory');
             chatHistory.innerHTML = '';
-            
+
             const sortedChats = Object.values(chats).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            
+
             sortedChats.forEach(chat => {
                 const chatItem = document.createElement('div');
                 chatItem.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
@@ -1492,38 +1525,60 @@
                 chatItem.onclick = () => loadChat(chat.id);
                 chatHistory.appendChild(chatItem);
             });
-            
+
             if (sortedChats.length > 0) {
                 addLog('info', 'Chat history rendered', { chatCount: sortedChats.length });
             }
         }
 
-        // Connection check
+        // Connection check with enhanced retry logic
         async function checkConnection() {
             addLog('info', 'Starting connection check', { webhookUrl: CONFIG.webhookUrl });
-            
+
             try {
                 updateConnectionStatus('connecting', 'بررسی اتصال...');
-                
-                // Try a simple GET request first to check if the endpoint exists
-                const response = await fetch(CONFIG.webhookUrl, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json, text/plain, */*',
-                    }
-                });
-                
-                addLog('success', 'Connection check successful', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    headers: Object.fromEntries(response.headers.entries())
-                });
-                
-                updateConnectionStatus('connected', 'آنلاین');
-                
+
+                // 🚀 ابتدا Proxy را تست کن
+                try {
+                    const response = await fetch(CONFIG.webhookUrl, {
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: { 'Accept': 'application/json, text/plain, */*' }
+                    });
+
+                    addLog('success', 'Connection check successful', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        url: CONFIG.webhookUrl
+                    });
+
+                    updateConnectionStatus('connected', 'آنلاین');
+                    return;
+
+                } catch (proxyError) {
+                    addLog('warning', 'Proxy connection failed, trying fallback', {
+                        proxyError: proxyError.message,
+                        fallbackUrl: CONFIG.fallbackUrl
+                    });
+
+                    // 🔄 Fallback را امتحان کن
+                    const fallbackResponse = await fetch(CONFIG.fallbackUrl, {
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: { 'Accept': 'application/json, text/plain, */*' }
+                    });
+
+                    addLog('success', 'Fallback connection successful', {
+                        status: fallbackResponse.status,
+                        statusText: fallbackResponse.statusText,
+                        url: CONFIG.fallbackUrl
+                    });
+
+                    updateConnectionStatus('connected', 'آنلاین (fallback)');
+                }
+
             } catch (error) {
-                addLog('warning', 'Connection check failed - webhook may be offline', { 
+                addLog('warning', 'Connection check failed - webhook may be offline', {
                     error: error.message,
                     errorType: error.name
                 });
@@ -1537,8 +1592,8 @@
                 saveChats();
                 saveLogs();
             }, CONFIG.autoSaveInterval);
-            
-            addLog('info', 'Auto-save timer setup completed', { 
+
+            addLog('info', 'Auto-save timer setup completed', {
                 interval: CONFIG.autoSaveInterval,
                 intervalMinutes: CONFIG.autoSaveInterval / 60000
             });
@@ -1547,12 +1602,12 @@
         // Textarea auto-resize
         function setupTextareaAutoResize() {
             const textarea = document.getElementById('messageInput');
-            
+
             textarea.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
             });
-            
+
             addLog('info', 'Textarea auto-resize setup completed');
         }
 
@@ -1571,15 +1626,15 @@
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            
+
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('open');
             } else {
                 sidebar.classList.toggle('collapsed');
                 isSidebarOpen = !sidebar.classList.contains('collapsed');
             }
-            
-            addLog('info', 'Sidebar toggled', { 
+
+            addLog('info', 'Sidebar toggled', {
                 isMobile: window.innerWidth <= 768,
                 isOpen: isSidebarOpen
             });
@@ -1588,19 +1643,19 @@
         function toggleTheme() {
             isDarkMode = !isDarkMode;
             document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-            
+
             const themeIcon = document.getElementById('themeIcon');
             themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-            
+
             localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            
+
             addLog('info', 'Theme toggled', { isDarkMode });
         }
 
         // Responsive handling
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
-            
+
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('open');
                 if (!isSidebarOpen) {
@@ -1615,10 +1670,10 @@
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
             const toggleButton = document.querySelector('.sidebar-toggle');
-            
-            if (window.innerWidth <= 768 && 
+
+            if (window.innerWidth <= 768 &&
                 sidebar.classList.contains('open') &&
-                !sidebar.contains(event.target) &&
+                .contains(event.target) &&
                 !toggleButton.contains(event.target)) {
                 sidebar.classList.remove('open');
             }
