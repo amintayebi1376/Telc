@@ -239,6 +239,7 @@
 
         .status-dot.error { background: var(--error-color); }
         .status-dot.warning { background: var(--warning-color); }
+        .status-dot.connecting { background: var(--warning-color); }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -319,20 +320,23 @@
             line-height: 1.6;
             word-wrap: break-word;
             white-space: pre-wrap;
-            direction: rtl;
-            text-align: right;
+            unicode-bidi: plaintext;
         }
 
         .user .message-content {
             background: var(--user-message);
             color: white;
             border-bottom-right-radius: 4px;
+            text-align: right;
+            direction: rtl;
         }
 
         .bot .message-content {
             background: var(--bot-message);
             color: var(--text-color);
             border-bottom-left-radius: 4px;
+            text-align: right;
+            direction: rtl;
         }
 
         .message-time {
@@ -410,6 +414,7 @@
             line-height: 1.5;
             direction: rtl;
             text-align: right;
+            unicode-bidi: plaintext;
         }
 
         .chat-input::placeholder {
@@ -628,6 +633,10 @@
             border-left-color: var(--primary-color);
         }
 
+        .log-entry.warning {
+            border-left-color: var(--warning-color);
+        }
+
         .log-time {
             color: var(--text-secondary);
             font-size: 0.8rem;
@@ -725,7 +734,7 @@
                         <h2 id="chatTitle">C TelC Assistant</h2>
                         <div class="connection-status">
                             <span class="status-dot" id="statusDot"></span>
-                            <span id="statusText">آنلاین</span>
+                            <span id="statusText">بررسی اتصال...</span>
                         </div>
                     </div>
                 </div>
@@ -812,7 +821,7 @@
     <script>
         // Configuration
         const CONFIG = {
-            webhookUrl: 'https://ariantesttelc.app.n8n.cloud/webhook/https://telc.amintayebi.ir/',
+            webhookUrl: 'https://ariantesttelc.app.n8n.cloud/webhook-test/chat',
             maxRetries: 3,
             retryDelay: 2000,
             timeout: 30000,
@@ -829,6 +838,12 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
+            addLog('info', 'Application starting up', {
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                timestamp: new Date().toISOString()
+            });
+            
             loadChats();
             loadLogs();
             checkConnection();
@@ -840,6 +855,8 @@
             if (savedTheme === 'dark') {
                 toggleTheme();
             }
+            
+            addLog('success', 'Application initialized successfully');
         });
 
         // Logging System
@@ -860,7 +877,18 @@
             }
             
             saveLogs();
-            console.log(`[${type.toUpperCase()}] ${message}`, data);
+            
+            // Console log with Persian date
+            const persianDate = new Date().toLocaleString('fa-IR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            console.log(`[${persianDate}] [${type.toUpperCase()}] ${message}`, data || '');
         }
 
         function saveLogs() {
@@ -876,6 +904,7 @@
                 const savedLogs = localStorage.getItem('telc_logs');
                 if (savedLogs) {
                     logs = JSON.parse(savedLogs);
+                    addLog('info', 'Logs loaded from storage', { logCount: logs.length });
                 }
             } catch (error) {
                 console.error('Error loading logs:', error);
@@ -922,7 +951,7 @@
             
             logBody.innerHTML = logs.map(log => {
                 const date = new Date(log.timestamp).toLocaleString('fa-IR');
-                const dataStr = log.data ? `<pre style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.8;">${JSON.stringify(log.data, null, 2)}</pre>` : '';
+                const dataStr = log.data ? `<pre style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.8; white-space: pre-wrap; direction: ltr; text-align: left;">${JSON.stringify(log.data, null, 2)}</pre>` : '';
                 
                 return `
                     <div class="log-entry ${log.type}">
@@ -1044,7 +1073,8 @@
             
             addLog('info', 'User message sent', { 
                 chatId: currentChatId, 
-                messageLength: message.length 
+                messageLength: message.length,
+                messagePreview: message.substring(0, 50)
             });
             
             sendToAI(message);
@@ -1071,62 +1101,85 @@
                 url: window.location.href
             };
             
-            addLog('info', 'Sending request to AI webhook', { 
+            addLog('info', 'Preparing to send request to webhook', { 
                 url: CONFIG.webhookUrl, 
-                payload: payload 
+                messageLength: message.length
             });
             
             let retries = 0;
             
             while (retries < CONFIG.maxRetries) {
                 try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeout);
-                    
                     addLog('info', `Attempt ${retries + 1} of ${CONFIG.maxRetries}`, {
-                        timeout: CONFIG.timeout
+                        timeout: CONFIG.timeout,
+                        payload: payload
+                    });
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => {
+                        controller.abort();
+                        addLog('warning', 'Request timed out', { timeout: CONFIG.timeout });
+                    }, CONFIG.timeout);
+                    
+                    addLog('info', 'Sending HTTP request', {
+                        method: 'POST',
+                        url: CONFIG.webhookUrl,
+                        headers: { 'Content-Type': 'application/json' }
                     });
                     
                     const response = await fetch(CONFIG.webhookUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json, text/plain, */*',
                         },
                         body: JSON.stringify(payload),
-                        signal: controller.signal
+                        signal: controller.signal,
+                        mode: 'cors'
                     });
                     
                     clearTimeout(timeoutId);
                     
-                    addLog('info', 'Response received', {
+                    addLog('success', 'HTTP response received', {
                         status: response.status,
                         statusText: response.statusText,
-                        headers: Object.fromEntries(response.headers.entries())
+                        headers: Object.fromEntries(response.headers.entries()),
+                        ok: response.ok,
+                        type: response.type,
+                        url: response.url
                     });
                     
                     if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        const errorText = await response.text();
+                        addLog('error', 'HTTP error response', {
+                            status: response.status,
+                            statusText: response.statusText,
+                            errorText: errorText
+                        });
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}\n${errorText}`);
                     }
                     
                     const responseText = await response.text();
-                    addLog('info', 'Raw response received', { 
+                    addLog('info', 'Response body received', { 
                         responseLength: responseText.length,
+                        contentType: response.headers.get('content-type'),
                         responsePreview: responseText.substring(0, 200)
                     });
                     
                     let data;
+                    let botResponse;
+                    
                     try {
                         data = JSON.parse(responseText);
-                        addLog('success', 'Response parsed successfully', data);
+                        addLog('success', 'Response parsed as JSON', data);
+                        botResponse = data.response || data.message || data.text || data.reply || 'پاسخ دریافت شد اما محتوا خالی است.';
                     } catch (parseError) {
-                        addLog('warning', 'Response is not valid JSON, using as text', {
+                        addLog('info', 'Response is not JSON, treating as plain text', {
                             parseError: parseError.message,
-                            response: responseText
+                            responseText: responseText
                         });
-                        data = { response: responseText };
+                        botResponse = responseText || 'پاسخ خالی دریافت شد.';
                     }
-                    
-                    const botResponse = data.response || data.message || data.text || responseText || 'متأسفم، پاسخی دریافت نکردم.';
                     
                     hideTypingIndicator();
                     displayMessage(botResponse, 'bot');
@@ -1141,8 +1194,9 @@
                     saveChats();
                     updateConnectionStatus('connected', 'آنلاین');
                     
-                    addLog('success', 'AI response processed successfully', {
-                        responseLength: botResponse.length
+                    addLog('success', 'AI response processed and displayed', {
+                        responseLength: botResponse.length,
+                        chatId: currentChatId
                     });
                     
                     break;
@@ -1151,7 +1205,9 @@
                     addLog('error', `Request attempt ${retries + 1} failed`, {
                         error: error.message,
                         errorType: error.name,
-                        stack: error.stack
+                        stack: error.stack,
+                        retryAttempt: retries + 1,
+                        maxRetries: CONFIG.maxRetries
                     });
                     
                     console.error(`Attempt ${retries + 1} failed:`, error);
@@ -1159,18 +1215,28 @@
                     
                     if (retries >= CONFIG.maxRetries) {
                         hideTypingIndicator();
-                        displayMessage(
-                            'متأسفم، در حال حاضر قادر به پاسخ‌دهی نیستم. لطفاً بعداً دوباره تلاش کنید.',
-                            'bot'
-                        );
+                        const errorMessage = 'متأسفم، در حال حاضر قادر به پاسخ‌دهی نیستم. لطفاً بعداً دوباره تلاش کنید.';
+                        displayMessage(errorMessage, 'bot');
                         updateConnectionStatus('error', 'خطا در اتصال');
+                        
+                        // Add error message to chat history
+                        chats[currentChatId].messages.push({
+                            content: errorMessage,
+                            type: 'bot',
+                            timestamp: new Date().toISOString()
+                        });
+                        saveChats();
                         
                         addLog('error', 'All retry attempts failed', {
                             totalAttempts: CONFIG.maxRetries,
-                            finalError: error.message
+                            finalError: error.message,
+                            chatId: currentChatId
                         });
                     } else {
-                        addLog('info', `Retrying in ${CONFIG.retryDelay}ms...`);
+                        addLog('info', `Retrying in ${CONFIG.retryDelay}ms...`, {
+                            nextAttempt: retries + 1,
+                            remainingAttempts: CONFIG.maxRetries - retries
+                        });
                         await new Promise(resolve => setTimeout(resolve, CONFIG.retryDelay));
                     }
                 }
@@ -1315,7 +1381,7 @@
             try {
                 localStorage.setItem('telc_chats', JSON.stringify(chats));
             } catch (error) {
-                addLog('error', 'Failed to save chats', { error: error.message });
+                addLog('error', 'Failed to save chats to localStorage', { error: error.message });
             }
         }
 
@@ -1324,10 +1390,12 @@
                 const savedChats = localStorage.getItem('telc_chats');
                 if (savedChats) {
                     chats = JSON.parse(savedChats);
-                    addLog('info', 'Chats loaded from storage', { chatCount: Object.keys(chats).length });
+                    addLog('info', 'Chats loaded from localStorage', { chatCount: Object.keys(chats).length });
+                } else {
+                    addLog('info', 'No saved chats found in localStorage');
                 }
             } catch (error) {
-                addLog('error', 'Failed to load chats', { error: error.message });
+                addLog('error', 'Failed to load chats from localStorage', { error: error.message });
                 chats = {};
             }
             renderChatHistory();
@@ -1337,38 +1405,53 @@
             const chatHistory = document.getElementById('chatHistory');
             chatHistory.innerHTML = '';
             
-            Object.values(chats)
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .forEach(chat => {
-                    const chatItem = document.createElement('div');
-                    chatItem.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
-                    chatItem.innerHTML = `
-                        <i class="fas fa-comment"></i>
-                        <span>${chat.title}</span>
-                    `;
-                    chatItem.onclick = () => loadChat(chat.id);
-                    chatHistory.appendChild(chatItem);
-                });
+            const sortedChats = Object.values(chats).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            sortedChats.forEach(chat => {
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                chatItem.innerHTML = `
+                    <i class="fas fa-comment"></i>
+                    <span>${chat.title}</span>
+                `;
+                chatItem.onclick = () => loadChat(chat.id);
+                chatHistory.appendChild(chatItem);
+            });
+            
+            if (sortedChats.length > 0) {
+                addLog('info', 'Chat history rendered', { chatCount: sortedChats.length });
+            }
         }
 
         // Connection check
         async function checkConnection() {
+            addLog('info', 'Starting connection check', { webhookUrl: CONFIG.webhookUrl });
+            
             try {
-                addLog('info', 'Checking connection to webhook');
+                updateConnectionStatus('connecting', 'بررسی اتصال...');
                 
+                // Try a simple GET request first to check if the endpoint exists
                 const response = await fetch(CONFIG.webhookUrl, {
-                    method: 'OPTIONS',
-                    mode: 'cors'
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                    }
                 });
                 
                 addLog('success', 'Connection check successful', {
                     status: response.status,
-                    statusText: response.statusText
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries())
                 });
                 
                 updateConnectionStatus('connected', 'آنلاین');
+                
             } catch (error) {
-                addLog('warning', 'Connection check failed', { error: error.message });
+                addLog('warning', 'Connection check failed - webhook may be offline', { 
+                    error: error.message,
+                    errorType: error.name
+                });
                 updateConnectionStatus('error', 'آفلاین');
             }
         }
@@ -1380,7 +1463,10 @@
                 saveLogs();
             }, CONFIG.autoSaveInterval);
             
-            addLog('info', 'Auto-save setup completed', { interval: CONFIG.autoSaveInterval });
+            addLog('info', 'Auto-save timer setup completed', { 
+                interval: CONFIG.autoSaveInterval,
+                intervalMinutes: CONFIG.autoSaveInterval / 60000
+            });
         }
 
         // Textarea auto-resize
@@ -1391,6 +1477,8 @@
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
             });
+            
+            addLog('info', 'Textarea auto-resize setup completed');
         }
 
         function resetTextareaHeight() {
@@ -1415,6 +1503,11 @@
                 sidebar.classList.toggle('collapsed');
                 isSidebarOpen = !sidebar.classList.contains('collapsed');
             }
+            
+            addLog('info', 'Sidebar toggled', { 
+                isMobile: window.innerWidth <= 768,
+                isOpen: isSidebarOpen
+            });
         }
 
         function toggleTheme() {
@@ -1463,13 +1556,8 @@
             }
         });
 
-        // Initialize with welcome screen and log startup
+        // Initialize with welcome screen
         showWelcomeScreen();
-        addLog('info', 'Application initialized', {
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            timestamp: new Date().toISOString()
-        });
     </script>
 </body>
 </html>
